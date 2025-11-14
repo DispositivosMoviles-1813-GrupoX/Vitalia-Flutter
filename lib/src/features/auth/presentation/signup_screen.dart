@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../application/auth_notifier.dart';
 
 class SignUpScreen extends ConsumerWidget {
@@ -177,7 +178,7 @@ class SignUpScreen extends ConsumerWidget {
                             onPressed: () async {
                               await notifier.signUp(
                                 usernameController.text.trim(),
-                                passwordController.text.trim(),
+                                passwordController.text.trim()
                               );
                             },
                             style: ElevatedButton.styleFrom(
@@ -215,7 +216,7 @@ class SignUpScreen extends ConsumerWidget {
                             const SizedBox(width: 8),
                             GestureDetector(
                               onTap: () {
-                                Navigator.pop(context);
+                                context.go('/login');
                               },
                               child: Text(
                                 'Inicia sesión',

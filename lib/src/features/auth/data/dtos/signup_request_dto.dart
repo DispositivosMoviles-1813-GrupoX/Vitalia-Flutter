@@ -2,7 +2,7 @@ class SignUpRequestDto {
   final String username;
   final String password;
 
-  final List<String> roles = const ['ROLE_USER'];
+  //final List<String> roles = const ['ROLE_USER'];
 
   SignUpRequestDto({
     required this.username,
@@ -13,6 +13,6 @@ class SignUpRequestDto {
   Map<String, dynamic> toJson() => {
     'username': username,
     'password': password,
-    'roles': roles,
+    //'roles': roles,
   };
 }

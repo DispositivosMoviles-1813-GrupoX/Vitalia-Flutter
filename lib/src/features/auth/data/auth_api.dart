@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import './dtos/auth_response_dto.dart';
@@ -8,7 +10,7 @@ import 'dtos/signup_request_dto.dart';
 final authApiProvider = Provider<AuthApi>((ref) => AuthApi());
 
 class AuthApi {
-  static const String baseUrl = "http://10.0.2.2:8080";
+  static const String baseUrl = "http://10.0.2.2:8093";
   static const String loginEndpoint = "/api/v1/authentication/sign-in";
   static const String signUpEndpoint = "/api/v1/authentication/sign-up";
 
@@ -38,10 +40,14 @@ class AuthApi {
   Future<SignUpResponseDto> signUp(SignUpRequestDto request) async {
     final url = Uri.parse("$baseUrl$signUpEndpoint");
 
+    final body = jsonEncode(request.toJson());
+
+    debugPrint('SignUp JSON: $body');
+
     final response = await http.post(
       url,
       headers: {"Content-Type": "application/json"},
-      body: jsonEncode(request.toJson()),
+      body: body,
     );
 
     if (response.statusCode == 200 || response.statusCode == 201) {

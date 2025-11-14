@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../application/auth_notifier.dart';
-import 'signup_screen.dart';
 
 class LoginScreen extends ConsumerWidget {
   const LoginScreen({super.key});
@@ -227,10 +227,7 @@ class LoginScreen extends ConsumerWidget {
                       const SizedBox(height: 4),
                       GestureDetector(
                         onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (_) => const SignUpScreen()),
-                          );
+                          context.push('/signup');
                         },
                         child: Text(
                           'Registrarse',
