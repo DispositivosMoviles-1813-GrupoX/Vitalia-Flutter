@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../application/auth_notifier.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -36,66 +37,61 @@ class HomeScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
 
-            // ********** HEADER **********
+            /// -- HEADER --
             _residentHeader(),
 
             const SizedBox(height: 24),
 
-            // *******************
             const Text(
               "Acceso rápido",
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 12),
-            _quickActions(),
+            _quickActions(context),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: 28),
 
-            // ********************
             const Text(
-              "Estado actual",
+              "Estado del residente",
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 12),
 
             _statusCard(
-              title: "Signos vitales",
-              subtitle: "Última medición hace 2 horas",
-              icon: Icons.monitor_heart,
-              color: Colors.pinkAccent,
+              title: "Doctor asignado",
+              subtitle: "Dr. Luis Aranda — Disponible",
+              icon: Icons.medical_services_outlined,
+              color: Colors.teal,
             ),
-
             _statusCard(
-              title: "Medicamentos",
-              subtitle: "2 pastillas pendientes hoy",
-              icon: Icons.medication,
+              title: "Próxima cita",
+              subtitle: "15 Nov, 10:00 AM — Control general",
+              icon: Icons.event,
               color: Colors.indigo,
             ),
-
             _statusCard(
-              title: "Actividad",
-              subtitle: "El residente caminó 300 pasos",
-              icon: Icons.directions_walk,
-              color: Colors.green,
+              title: "Última actualización",
+              subtitle: "Reporte diario enviado hoy a las 9:20 AM",
+              icon: Icons.update,
+              color: Colors.orange,
             ),
 
             const SizedBox(height: 24),
 
-            // ********************
+            /// -- NOTIFICATIONS --
             const Text(
-              "Comunicación",
+              "Notificaciones",
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
             ),
-
             const SizedBox(height: 12),
-            _messageCard(),
+            _notificationsCard(context),
           ],
         ),
       ),
     );
   }
 
-
+  /// ========== HEADER==========
   Widget _residentHeader() {
     return Container(
       padding: const EdgeInsets.all(18),
@@ -125,7 +121,7 @@ class HomeScreen extends ConsumerWidget {
                 ),
                 SizedBox(height: 4),
                 Text(
-                  "Residente - Habitación 305",
+                  "Habitación 305 — Residente",
                   style: TextStyle(
                     color: Colors.white70,
                     fontSize: 14,
@@ -139,42 +135,54 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _quickActions() {
+  Widget _quickActions(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        _actionItem(Icons.medical_information, "Historial"),
-        _actionItem(Icons.list_alt, "Reporte diario"),
-        _actionItem(Icons.emergency, "Emergencia"),
-        _actionItem(Icons.chat, "Chat"),
+        _actionItem(Icons.person_search, "Overview", onTap: () {
+          context.push('/resident');
+        }),
+        _actionItem(Icons.notifications, "Notificaciones", onTap: () {
+          context.push('/notifications');
+        }),
+        _actionItem(Icons.event, "Citas", onTap: () {
+          context.push('/appointments');
+        }),
+        _actionItem(Icons.local_hospital, "Doctor", onTap: () {
+          context.push('/resident/doctor');
+        }),
       ],
     );
   }
 
-  Widget _actionItem(IconData icon, String label) {
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(14),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black12.withAlpha(55),
-                blurRadius: 6,
-                offset: const Offset(0, 3),
-              )
-            ],
+  Widget _actionItem(IconData icon, String label, {VoidCallback? onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(14),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black12.withAlpha(55),
+                  blurRadius: 6,
+                  offset: const Offset(0, 3),
+                )
+              ],
+            ),
+            child: Icon(icon, size: 26, color: Colors.teal[700]),
           ),
-          child: Icon(icon, size: 26, color: Colors.teal[700]),
-        ),
-        const SizedBox(height: 6),
-        Text(label),
-      ],
+          const SizedBox(height: 6),
+          Text(label),
+        ],
+      ),
     );
   }
 
+  /// ========== STATUS CARDS ==========
   Widget _statusCard({
     required String title,
     required String subtitle,
@@ -199,7 +207,7 @@ class HomeScreen extends ConsumerWidget {
         children: [
           CircleAvatar(
             radius: 26,
-            backgroundColor: color.withAlpha(55),
+            backgroundColor: color.withOpacity(.15),
             child: Icon(icon, color: color, size: 28),
           ),
           const SizedBox(width: 14),
@@ -223,28 +231,30 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _messageCard() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.teal[50],
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.chat_bubble_outline, size: 28, color: Colors.teal),
-          const SizedBox(width: 12),
-          const Expanded(
-            child: Text(
-              "¿Quieres comunicarte con el doctor o cuidador?\nEscríbeles un mensaje ahora.",
-              style: TextStyle(fontSize: 14),
+  /// ========== NOTIFICATIONS CARD ==========
+  Widget _notificationsCard(BuildContext context) {
+    return GestureDetector(
+      onTap: () => context.push('/notifications'),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.teal[50],
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.notifications_active,
+                size: 28, color: Colors.teal),
+            const SizedBox(width: 12),
+            const Expanded(
+              child: Text(
+                "Revisa los últimos avisos enviados por los doctores y cuidadores.",
+                style: TextStyle(fontSize: 14),
+              ),
             ),
-          ),
-          TextButton(
-            onPressed: () {},
-            child: const Text("Abrir chat"),
-          )
-        ],
+            const Icon(Icons.arrow_forward_ios, size: 16),
+          ],
+        ),
       ),
     );
   }
