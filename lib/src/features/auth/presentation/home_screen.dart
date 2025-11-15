@@ -2,6 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../application/auth_notifier.dart';
 
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+// AJUSTA ESTE IMPORT SEGÚN TU NOMBRE DEL PROYECTO / RUTA
+import 'package:vitalia_flutter/src/features/payments/presentation/pages/resident_payments_page.dart';
+import '../application/auth_notifier.dart';
+
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
@@ -47,7 +54,7 @@ class HomeScreen extends ConsumerWidget {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 12),
-            _quickActions(),
+            _quickActions(context), // 👈 PASAMOS CONTEXT AHORA
 
             const SizedBox(height: 24),
 
@@ -95,7 +102,7 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-
+  // HEADER DEL RESIDENTE
   Widget _residentHeader() {
     return Container(
       padding: const EdgeInsets.all(18),
@@ -139,42 +146,68 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _quickActions() {
+
+  // ACCESO RÁPIDO
+  Widget _quickActions(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        _actionItem(Icons.medical_information, "Historial"),
-        _actionItem(Icons.list_alt, "Reporte diario"),
-        _actionItem(Icons.emergency, "Emergencia"),
-        _actionItem(Icons.chat, "Chat"),
+        _actionItem(Icons.medical_information, "Historial", () {
+          // TODO
+        }),
+        _actionItem(Icons.list_alt, "Reporte diario", () {
+          // TODO
+        }),
+        _actionItem(Icons.emergency, "Emergencia", () {
+          // TODO
+        }),
+        _actionItem(Icons.chat, "Chat", () {
+          // TODO
+        }),
+
+        // 👇 NUEVO ITEM DE PAGOS
+        _actionItem(Icons.receipt_long, "Pagos", () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => const ResidentPaymentsPage(),
+            ),
+          );
+        }),
       ],
     );
   }
 
-  Widget _actionItem(IconData icon, String label) {
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(14),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black12.withAlpha(55),
-                blurRadius: 6,
-                offset: const Offset(0, 3),
-              )
-            ],
+
+  // ITEM DEL ACCESO RÁPIDO (TOCABLE)
+  Widget _actionItem(IconData icon, String label, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(14),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black12.withAlpha(55),
+                  blurRadius: 6,
+                  offset: const Offset(0, 3),
+                )
+              ],
+            ),
+            child: Icon(icon, size: 26, color: Colors.teal[700]),
           ),
-          child: Icon(icon, size: 26, color: Colors.teal[700]),
-        ),
-        const SizedBox(height: 6),
-        Text(label),
-      ],
+          const SizedBox(height: 6),
+          Text(label),
+        ],
+      ),
     );
   }
 
+
+  // TARJETAS DE ESTADO
   Widget _statusCard({
     required String title,
     required String subtitle,
@@ -223,6 +256,8 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
+
+  // CARD DE MENSAJE
   Widget _messageCard() {
     return Container(
       padding: const EdgeInsets.all(16),
