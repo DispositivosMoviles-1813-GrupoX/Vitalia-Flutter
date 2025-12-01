@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:vitalia_flutter/src/features/resident/presentation/resident_medicalhistory_screen.dart';
@@ -6,6 +8,7 @@ import 'package:vitalia_flutter/src/features/resident/presentation/resident_ment
 import 'package:vitalia_flutter/src/features/resident/presentation/resident_overview_screen.dart';
 import 'package:vitalia_flutter/src/features/resident/presentation/resident_profile_screen.dart';
 import 'package:vitalia_flutter/src/features/resident/presentation/resident_reports_screen.dart';
+import '../../../features/family/presentation/create_family_member_screen.dart';
 
 import '../../../features/auth/application/auth_notifier.dart';
 import '../../../features/auth/presentation/login_screen.dart';
@@ -22,12 +25,25 @@ final goRouterProvider = Provider<GoRouter>((ref) {
     refreshListenable: notifier,
     redirect: (context, state) {
       final user = auth.whenOrNull(data: (user) => user);
+      print("AppRouter: User state: $user");
+      print("AppRouter: Location: ${state.matchedLocation}");
       final isAuthPage =
           state.matchedLocation == '/login' ||
               state.matchedLocation == '/signup';
 
       if (user == null && !isAuthPage) return '/login';
-      if (user != null && isAuthPage) return '/home';
+      if (user != null && isAuthPage) {
+        if (user.role == 'ROLE_FAMILY_MEMBER' && user.residentId == null) {
+          return '/create-family-member';
+        }
+        return '/home';
+      }
+      
+      if (user != null && state.matchedLocation == '/create-family-member') {
+         if (user.residentId != null || user.role != 'ROLE_FAMILY_MEMBER') {
+           return '/home';
+         }
+      }
 
       return null;
     },
@@ -42,6 +58,24 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/resident/mental-health', builder: (_, __) => const ResidentMentalHealthScreen()),
       GoRoute(path: '/resident/profile', builder: (_, __) => const ResidentProfileScreen()),
       GoRoute(path: '/resident/reports', builder: (_, __) => const ResidentReportsScreen()),
+      GoRoute(path: '/create-family-member', builder: (_, __) => const CreateFamilyMemberScreen()),
     ],
   );
 });
+
+class GoRouterRefreshStream extends ChangeNotifier {
+  GoRouterRefreshStream(Stream<dynamic> stream) {
+    notifyListeners();
+    _subscription = stream.asBroadcastStream().listen(
+          (dynamic _) => notifyListeners(),
+    );
+  }
+
+  late final StreamSubscription<dynamic> _subscription;
+
+  @override
+  void dispose() {
+    _subscription.cancel();
+    super.dispose();
+  }
+}
