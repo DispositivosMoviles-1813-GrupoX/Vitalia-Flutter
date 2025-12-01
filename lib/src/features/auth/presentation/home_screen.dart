@@ -3,6 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../application/auth_notifier.dart';
 
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+// AJUSTA ESTE IMPORT SEGÚN TU NOMBRE DEL PROYECTO / RUTA
+import 'package:vitalia_flutter/src/features/payments/presentation/pages/resident_payments_page.dart';
+import '../application/auth_notifier.dart';
+
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
@@ -207,7 +214,7 @@ class HomeScreen extends ConsumerWidget {
         children: [
           CircleAvatar(
             radius: 26,
-            backgroundColor: color.withOpacity(.15),
+            backgroundColor: color.withAlpha(55),
             child: Icon(icon, color: color, size: 28),
           ),
           const SizedBox(width: 14),
