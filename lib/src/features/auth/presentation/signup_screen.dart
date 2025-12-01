@@ -12,6 +12,7 @@ class SignUpScreen extends ConsumerWidget {
     final notifier = ref.read(authNotifierProvider.notifier);
 
     final usernameController = TextEditingController();
+    final emailController = TextEditingController();
     final passwordController = TextEditingController();
 
     return Scaffold(
@@ -131,6 +132,43 @@ class SignUpScreen extends ConsumerWidget {
 
                         const SizedBox(height: 16),
 
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withAlpha(55),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: TextField(
+                            controller: emailController,
+                            decoration: InputDecoration(
+                              labelText: 'Correo Electrónico',
+                              labelStyle: TextStyle(color: Colors.grey[600]),
+                              prefixIcon: Icon(
+                                Icons.email_outlined,
+                                color: Colors.grey[500],
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide.none,
+                              ),
+                              filled: true,
+                              fillColor: Colors.white,
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 16,
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 16),
+
 
                         Container(
                           decoration: BoxDecoration(
@@ -178,6 +216,7 @@ class SignUpScreen extends ConsumerWidget {
                             onPressed: () async {
                               await notifier.signUp(
                                 usernameController.text.trim(),
+                                emailController.text.trim(),
                                 passwordController.text.trim()
                               );
                             },

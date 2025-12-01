@@ -9,6 +9,7 @@ class SignUpResponseDto with _$SignUpResponseDto {
   const factory SignUpResponseDto({
     required int id,
     required String username,
+    required String emailAddress,
     required List<String> roles,
   }) = _SignUpResponseDto;
 
@@ -24,10 +25,10 @@ extension SignUpResponseMapper on SignUpResponseDto {
     return User(
       id: id,
       username: username,
-      role: roles.isNotEmpty ? roles.first : "FAMILY",
+      role: (roles != null && roles!.isNotEmpty) ? roles!.first : "FAMILY",
       firstName: "",
       lastName: "",
-      email: "",
+      email: emailAddress,
       phone: "",
       dateOfBirth: DateTime(2000, 1, 1),
     );
