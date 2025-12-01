@@ -9,11 +9,22 @@ class InMemorySessionStorage implements SessionStorage {
 
   String? _accessToken;
   String? _refreshToken;
+  int? _userId;
 
   @override
   Future<void> saveToken(String accessToken, String refreshToken) async {
     _accessToken = accessToken;
     _refreshToken = refreshToken;
+  }
+
+  @override
+  Future<void> saveUserId(int userId) async {
+    _userId = userId;
+  }
+
+  @override
+  Future<int?> getUserId() async {
+    return _userId;
   }
 
   @override
@@ -30,5 +41,6 @@ class InMemorySessionStorage implements SessionStorage {
   Future<void> clearSession() async {
     _accessToken = null;
     _refreshToken = null;
+    _userId = null;
   }
 }

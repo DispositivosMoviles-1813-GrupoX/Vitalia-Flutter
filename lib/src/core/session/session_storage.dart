@@ -3,4 +3,6 @@ abstract class SessionStorage {
   Future<String?> getAccessToken();
   Future<String?> getRefreshToken();
   Future<void> clearSession();
+  Future<void> saveUserId(int userId);
+  Future<int?> getUserId();
 }

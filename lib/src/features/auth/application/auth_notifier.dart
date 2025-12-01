@@ -30,6 +30,7 @@ class AuthNotifier extends AsyncNotifier<User?> {
       // 1. Login API
       final response = await api.signIn(username: username, password: password);
       await storage.saveToken(response.token, "");
+      await storage.saveUserId(response.id);
 
       // 2. Usuario base (sin residentId)
       // Usamos una variable clara llamada 'userToSave'
