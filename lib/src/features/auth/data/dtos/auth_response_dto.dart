@@ -22,11 +22,7 @@ class AuthResponseDto with _$AuthResponseDto {
       id: id,
       username: username,
       role: "FAMILY",
-      firstName: "",
-      lastName: "",
       email: "",
-      phone: "",
-      dateOfBirth: DateTime(2000, 1, 1),
     );
   }
 

@@ -37,7 +37,7 @@ final residentProvider = FutureProvider<Resident>((ref) async {
   }
 
   if (user.residentId != null) {
-    return repo.getResidentDetails(user.residentId!);
+    return repo.getResidentById(user.residentId!);
   } else {
     // Fallback: fetch all and pick first, or pick based on some other logic.
     // This is useful if the user is a family member linked to a resident but the ID isn't in the user object yet.
@@ -45,7 +45,7 @@ final residentProvider = FutureProvider<Resident>((ref) async {
     if (residents.isNotEmpty) {
       // For now, just pick the first one. 
       // In a real app, we might show a selection screen.
-      return repo.getResidentDetails(residents.first.id);
+      return repo.getResidentById(residents.first.id);
     }
     throw Exception("User has no linked resident and no residents found.");
   }

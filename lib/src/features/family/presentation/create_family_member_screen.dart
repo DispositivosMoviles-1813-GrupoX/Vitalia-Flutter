@@ -5,8 +5,8 @@ import 'package:intl/intl.dart';
 import '../../auth/application/auth_notifier.dart';
 import '../../resident/application/resident_provider.dart';
 import '../../resident/data/dtos/create_resident_request_dto.dart';
-import '../data/dtos/create_family_member_request_dto.dart';
 import '../data/family_repository.dart';
+import '../data/dtos/create_family_member_request_dto.dart';
 
 class CreateFamilyMemberScreen extends ConsumerStatefulWidget {
   const CreateFamilyMemberScreen({super.key});

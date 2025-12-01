@@ -15,7 +15,11 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$User {
 
- int get id; String get username; String get role; String get firstName; String get lastName; String get email; String get phone; String? get profileImageUrl; int? get residentId;@DateOnlyConverter() DateTime get dateOfBirth;
+ int get id; String get username;// Backend envía "emailAddress", mapeamos a "email" en Dart
+@JsonKey(name: 'emailAddress') String get email;// Backend envía lista ["ROLE_USER"], tomamos el primero o un default
+@JsonKey(fromJson: _roleFromJson) String get role;// Estos campos NO vienen en el Auth Response.
+// Deben ser opcionales o llenarse con otra petición (ej. getFamilyProfile)
+ String? get firstName; String? get lastName; String? get phone; String? get profileImageUrl; DateTime? get dateOfBirth; int? get residentId;
 /// Create a copy of User
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +32,16 @@ $UserCopyWith<User> get copyWith => _$UserCopyWithImpl<User>(this as User, _$ide
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is User&&(identical(other.id, id) || other.id == id)&&(identical(other.username, username) || other.username == username)&&(identical(other.role, role) || other.role == role)&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.lastName, lastName) || other.lastName == lastName)&&(identical(other.email, email) || other.email == email)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.profileImageUrl, profileImageUrl) || other.profileImageUrl == profileImageUrl)&&(identical(other.residentId, residentId) || other.residentId == residentId)&&(identical(other.dateOfBirth, dateOfBirth) || other.dateOfBirth == dateOfBirth));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is User&&(identical(other.id, id) || other.id == id)&&(identical(other.username, username) || other.username == username)&&(identical(other.email, email) || other.email == email)&&(identical(other.role, role) || other.role == role)&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.lastName, lastName) || other.lastName == lastName)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.profileImageUrl, profileImageUrl) || other.profileImageUrl == profileImageUrl)&&(identical(other.dateOfBirth, dateOfBirth) || other.dateOfBirth == dateOfBirth)&&(identical(other.residentId, residentId) || other.residentId == residentId));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,username,role,firstName,lastName,email,phone,profileImageUrl,residentId,dateOfBirth);
+int get hashCode => Object.hash(runtimeType,id,username,email,role,firstName,lastName,phone,profileImageUrl,dateOfBirth,residentId);
 
 @override
 String toString() {
-  return 'User(id: $id, username: $username, role: $role, firstName: $firstName, lastName: $lastName, email: $email, phone: $phone, profileImageUrl: $profileImageUrl, residentId: $residentId, dateOfBirth: $dateOfBirth)';
+  return 'User(id: $id, username: $username, email: $email, role: $role, firstName: $firstName, lastName: $lastName, phone: $phone, profileImageUrl: $profileImageUrl, dateOfBirth: $dateOfBirth, residentId: $residentId)';
 }
 
 
@@ -48,7 +52,7 @@ abstract mixin class $UserCopyWith<$Res>  {
   factory $UserCopyWith(User value, $Res Function(User) _then) = _$UserCopyWithImpl;
 @useResult
 $Res call({
- int id, String username, String role, String firstName, String lastName, String email, String phone, String? profileImageUrl, int? residentId,@DateOnlyConverter() DateTime dateOfBirth
+ int id, String username,@JsonKey(name: 'emailAddress') String email,@JsonKey(fromJson: _roleFromJson) String role, String? firstName, String? lastName, String? phone, String? profileImageUrl, DateTime? dateOfBirth, int? residentId
 });
 
 
@@ -65,19 +69,19 @@ class _$UserCopyWithImpl<$Res>
 
 /// Create a copy of User
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? username = null,Object? role = null,Object? firstName = null,Object? lastName = null,Object? email = null,Object? phone = null,Object? profileImageUrl = freezed,Object? residentId = freezed,Object? dateOfBirth = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? username = null,Object? email = null,Object? role = null,Object? firstName = freezed,Object? lastName = freezed,Object? phone = freezed,Object? profileImageUrl = freezed,Object? dateOfBirth = freezed,Object? residentId = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,username: null == username ? _self.username : username // ignore: cast_nullable_to_non_nullable
-as String,role: null == role ? _self.role : role // ignore: cast_nullable_to_non_nullable
-as String,firstName: null == firstName ? _self.firstName : firstName // ignore: cast_nullable_to_non_nullable
-as String,lastName: null == lastName ? _self.lastName : lastName // ignore: cast_nullable_to_non_nullable
 as String,email: null == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
-as String,phone: null == phone ? _self.phone : phone // ignore: cast_nullable_to_non_nullable
-as String,profileImageUrl: freezed == profileImageUrl ? _self.profileImageUrl : profileImageUrl // ignore: cast_nullable_to_non_nullable
-as String?,residentId: freezed == residentId ? _self.residentId : residentId // ignore: cast_nullable_to_non_nullable
-as int?,dateOfBirth: null == dateOfBirth ? _self.dateOfBirth : dateOfBirth // ignore: cast_nullable_to_non_nullable
-as DateTime,
+as String,role: null == role ? _self.role : role // ignore: cast_nullable_to_non_nullable
+as String,firstName: freezed == firstName ? _self.firstName : firstName // ignore: cast_nullable_to_non_nullable
+as String?,lastName: freezed == lastName ? _self.lastName : lastName // ignore: cast_nullable_to_non_nullable
+as String?,phone: freezed == phone ? _self.phone : phone // ignore: cast_nullable_to_non_nullable
+as String?,profileImageUrl: freezed == profileImageUrl ? _self.profileImageUrl : profileImageUrl // ignore: cast_nullable_to_non_nullable
+as String?,dateOfBirth: freezed == dateOfBirth ? _self.dateOfBirth : dateOfBirth // ignore: cast_nullable_to_non_nullable
+as DateTime?,residentId: freezed == residentId ? _self.residentId : residentId // ignore: cast_nullable_to_non_nullable
+as int?,
   ));
 }
 
@@ -162,10 +166,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String username,  String role,  String firstName,  String lastName,  String email,  String phone,  String? profileImageUrl,  int? residentId, @DateOnlyConverter()  DateTime dateOfBirth)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String username, @JsonKey(name: 'emailAddress')  String email, @JsonKey(fromJson: _roleFromJson)  String role,  String? firstName,  String? lastName,  String? phone,  String? profileImageUrl,  DateTime? dateOfBirth,  int? residentId)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _User() when $default != null:
-return $default(_that.id,_that.username,_that.role,_that.firstName,_that.lastName,_that.email,_that.phone,_that.profileImageUrl,_that.residentId,_that.dateOfBirth);case _:
+return $default(_that.id,_that.username,_that.email,_that.role,_that.firstName,_that.lastName,_that.phone,_that.profileImageUrl,_that.dateOfBirth,_that.residentId);case _:
   return orElse();
 
 }
@@ -183,10 +187,10 @@ return $default(_that.id,_that.username,_that.role,_that.firstName,_that.lastNam
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String username,  String role,  String firstName,  String lastName,  String email,  String phone,  String? profileImageUrl,  int? residentId, @DateOnlyConverter()  DateTime dateOfBirth)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String username, @JsonKey(name: 'emailAddress')  String email, @JsonKey(fromJson: _roleFromJson)  String role,  String? firstName,  String? lastName,  String? phone,  String? profileImageUrl,  DateTime? dateOfBirth,  int? residentId)  $default,) {final _that = this;
 switch (_that) {
 case _User():
-return $default(_that.id,_that.username,_that.role,_that.firstName,_that.lastName,_that.email,_that.phone,_that.profileImageUrl,_that.residentId,_that.dateOfBirth);case _:
+return $default(_that.id,_that.username,_that.email,_that.role,_that.firstName,_that.lastName,_that.phone,_that.profileImageUrl,_that.dateOfBirth,_that.residentId);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -203,10 +207,10 @@ return $default(_that.id,_that.username,_that.role,_that.firstName,_that.lastNam
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String username,  String role,  String firstName,  String lastName,  String email,  String phone,  String? profileImageUrl,  int? residentId, @DateOnlyConverter()  DateTime dateOfBirth)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String username, @JsonKey(name: 'emailAddress')  String email, @JsonKey(fromJson: _roleFromJson)  String role,  String? firstName,  String? lastName,  String? phone,  String? profileImageUrl,  DateTime? dateOfBirth,  int? residentId)?  $default,) {final _that = this;
 switch (_that) {
 case _User() when $default != null:
-return $default(_that.id,_that.username,_that.role,_that.firstName,_that.lastName,_that.email,_that.phone,_that.profileImageUrl,_that.residentId,_that.dateOfBirth);case _:
+return $default(_that.id,_that.username,_that.email,_that.role,_that.firstName,_that.lastName,_that.phone,_that.profileImageUrl,_that.dateOfBirth,_that.residentId);case _:
   return null;
 
 }
@@ -218,19 +222,23 @@ return $default(_that.id,_that.username,_that.role,_that.firstName,_that.lastNam
 @JsonSerializable()
 
 class _User extends User {
-  const _User({required this.id, required this.username, required this.role, required this.firstName, required this.lastName, required this.email, required this.phone, this.profileImageUrl, this.residentId, @DateOnlyConverter() required this.dateOfBirth}): super._();
+  const _User({required this.id, required this.username, @JsonKey(name: 'emailAddress') required this.email, @JsonKey(fromJson: _roleFromJson) this.role = 'FAMILY', this.firstName, this.lastName, this.phone, this.profileImageUrl, this.dateOfBirth, this.residentId}): super._();
   factory _User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
 
 @override final  int id;
 @override final  String username;
-@override final  String role;
-@override final  String firstName;
-@override final  String lastName;
-@override final  String email;
-@override final  String phone;
+// Backend envía "emailAddress", mapeamos a "email" en Dart
+@override@JsonKey(name: 'emailAddress') final  String email;
+// Backend envía lista ["ROLE_USER"], tomamos el primero o un default
+@override@JsonKey(fromJson: _roleFromJson) final  String role;
+// Estos campos NO vienen en el Auth Response.
+// Deben ser opcionales o llenarse con otra petición (ej. getFamilyProfile)
+@override final  String? firstName;
+@override final  String? lastName;
+@override final  String? phone;
 @override final  String? profileImageUrl;
+@override final  DateTime? dateOfBirth;
 @override final  int? residentId;
-@override@DateOnlyConverter() final  DateTime dateOfBirth;
 
 /// Create a copy of User
 /// with the given fields replaced by the non-null parameter values.
@@ -245,16 +253,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _User&&(identical(other.id, id) || other.id == id)&&(identical(other.username, username) || other.username == username)&&(identical(other.role, role) || other.role == role)&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.lastName, lastName) || other.lastName == lastName)&&(identical(other.email, email) || other.email == email)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.profileImageUrl, profileImageUrl) || other.profileImageUrl == profileImageUrl)&&(identical(other.residentId, residentId) || other.residentId == residentId)&&(identical(other.dateOfBirth, dateOfBirth) || other.dateOfBirth == dateOfBirth));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _User&&(identical(other.id, id) || other.id == id)&&(identical(other.username, username) || other.username == username)&&(identical(other.email, email) || other.email == email)&&(identical(other.role, role) || other.role == role)&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.lastName, lastName) || other.lastName == lastName)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.profileImageUrl, profileImageUrl) || other.profileImageUrl == profileImageUrl)&&(identical(other.dateOfBirth, dateOfBirth) || other.dateOfBirth == dateOfBirth)&&(identical(other.residentId, residentId) || other.residentId == residentId));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,username,role,firstName,lastName,email,phone,profileImageUrl,residentId,dateOfBirth);
+int get hashCode => Object.hash(runtimeType,id,username,email,role,firstName,lastName,phone,profileImageUrl,dateOfBirth,residentId);
 
 @override
 String toString() {
-  return 'User(id: $id, username: $username, role: $role, firstName: $firstName, lastName: $lastName, email: $email, phone: $phone, profileImageUrl: $profileImageUrl, residentId: $residentId, dateOfBirth: $dateOfBirth)';
+  return 'User(id: $id, username: $username, email: $email, role: $role, firstName: $firstName, lastName: $lastName, phone: $phone, profileImageUrl: $profileImageUrl, dateOfBirth: $dateOfBirth, residentId: $residentId)';
 }
 
 
@@ -265,7 +273,7 @@ abstract mixin class _$UserCopyWith<$Res> implements $UserCopyWith<$Res> {
   factory _$UserCopyWith(_User value, $Res Function(_User) _then) = __$UserCopyWithImpl;
 @override @useResult
 $Res call({
- int id, String username, String role, String firstName, String lastName, String email, String phone, String? profileImageUrl, int? residentId,@DateOnlyConverter() DateTime dateOfBirth
+ int id, String username,@JsonKey(name: 'emailAddress') String email,@JsonKey(fromJson: _roleFromJson) String role, String? firstName, String? lastName, String? phone, String? profileImageUrl, DateTime? dateOfBirth, int? residentId
 });
 
 
@@ -282,19 +290,19 @@ class __$UserCopyWithImpl<$Res>
 
 /// Create a copy of User
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? username = null,Object? role = null,Object? firstName = null,Object? lastName = null,Object? email = null,Object? phone = null,Object? profileImageUrl = freezed,Object? residentId = freezed,Object? dateOfBirth = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? username = null,Object? email = null,Object? role = null,Object? firstName = freezed,Object? lastName = freezed,Object? phone = freezed,Object? profileImageUrl = freezed,Object? dateOfBirth = freezed,Object? residentId = freezed,}) {
   return _then(_User(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,username: null == username ? _self.username : username // ignore: cast_nullable_to_non_nullable
-as String,role: null == role ? _self.role : role // ignore: cast_nullable_to_non_nullable
-as String,firstName: null == firstName ? _self.firstName : firstName // ignore: cast_nullable_to_non_nullable
-as String,lastName: null == lastName ? _self.lastName : lastName // ignore: cast_nullable_to_non_nullable
 as String,email: null == email ? _self.email : email // ignore: cast_nullable_to_non_nullable
-as String,phone: null == phone ? _self.phone : phone // ignore: cast_nullable_to_non_nullable
-as String,profileImageUrl: freezed == profileImageUrl ? _self.profileImageUrl : profileImageUrl // ignore: cast_nullable_to_non_nullable
-as String?,residentId: freezed == residentId ? _self.residentId : residentId // ignore: cast_nullable_to_non_nullable
-as int?,dateOfBirth: null == dateOfBirth ? _self.dateOfBirth : dateOfBirth // ignore: cast_nullable_to_non_nullable
-as DateTime,
+as String,role: null == role ? _self.role : role // ignore: cast_nullable_to_non_nullable
+as String,firstName: freezed == firstName ? _self.firstName : firstName // ignore: cast_nullable_to_non_nullable
+as String?,lastName: freezed == lastName ? _self.lastName : lastName // ignore: cast_nullable_to_non_nullable
+as String?,phone: freezed == phone ? _self.phone : phone // ignore: cast_nullable_to_non_nullable
+as String?,profileImageUrl: freezed == profileImageUrl ? _self.profileImageUrl : profileImageUrl // ignore: cast_nullable_to_non_nullable
+as String?,dateOfBirth: freezed == dateOfBirth ? _self.dateOfBirth : dateOfBirth // ignore: cast_nullable_to_non_nullable
+as DateTime?,residentId: freezed == residentId ? _self.residentId : residentId // ignore: cast_nullable_to_non_nullable
+as int?,
   ));
 }
 

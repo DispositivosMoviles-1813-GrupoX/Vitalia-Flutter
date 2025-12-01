@@ -15,11 +15,10 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Resident {
 
- int get id; String get firstName; String get lastName; String get dni;// Backend doesn't seem to return age directly in the resource, but we can calculate it or add it if available.
-// For now, let's assume the backend might provide birthDate or we keep age if it's there.
-// Looking at the controller, ResidentResource is returned. Let's assume it has basic info.
-// We'll add nullable fields for details that might not be in the list view.
- String? get photoUrl; String? get status; String? get emergencyContact; String? get allergies; String? get conditions; String? get address;
+ int get id; String? get dni; String? get firstName; String? get lastName;// Nuevos campos según tu JSON
+ String? get city; String? get state; String? get country; String? get street; String? get zipCode; String? get gender; int? get receiptId;// Usamos el converter para manejar "1990-05-11"
+@DateOnlyConverter() DateTime? get birthDate;// Campos opcionales que tenías antes (por si el backend los agrega luego)
+ String? get status; String? get photoUrl;
 /// Create a copy of Resident
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -32,16 +31,16 @@ $ResidentCopyWith<Resident> get copyWith => _$ResidentCopyWithImpl<Resident>(thi
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Resident&&(identical(other.id, id) || other.id == id)&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.lastName, lastName) || other.lastName == lastName)&&(identical(other.dni, dni) || other.dni == dni)&&(identical(other.photoUrl, photoUrl) || other.photoUrl == photoUrl)&&(identical(other.status, status) || other.status == status)&&(identical(other.emergencyContact, emergencyContact) || other.emergencyContact == emergencyContact)&&(identical(other.allergies, allergies) || other.allergies == allergies)&&(identical(other.conditions, conditions) || other.conditions == conditions)&&(identical(other.address, address) || other.address == address));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Resident&&(identical(other.id, id) || other.id == id)&&(identical(other.dni, dni) || other.dni == dni)&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.lastName, lastName) || other.lastName == lastName)&&(identical(other.city, city) || other.city == city)&&(identical(other.state, state) || other.state == state)&&(identical(other.country, country) || other.country == country)&&(identical(other.street, street) || other.street == street)&&(identical(other.zipCode, zipCode) || other.zipCode == zipCode)&&(identical(other.gender, gender) || other.gender == gender)&&(identical(other.receiptId, receiptId) || other.receiptId == receiptId)&&(identical(other.birthDate, birthDate) || other.birthDate == birthDate)&&(identical(other.status, status) || other.status == status)&&(identical(other.photoUrl, photoUrl) || other.photoUrl == photoUrl));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,firstName,lastName,dni,photoUrl,status,emergencyContact,allergies,conditions,address);
+int get hashCode => Object.hash(runtimeType,id,dni,firstName,lastName,city,state,country,street,zipCode,gender,receiptId,birthDate,status,photoUrl);
 
 @override
 String toString() {
-  return 'Resident(id: $id, firstName: $firstName, lastName: $lastName, dni: $dni, photoUrl: $photoUrl, status: $status, emergencyContact: $emergencyContact, allergies: $allergies, conditions: $conditions, address: $address)';
+  return 'Resident(id: $id, dni: $dni, firstName: $firstName, lastName: $lastName, city: $city, state: $state, country: $country, street: $street, zipCode: $zipCode, gender: $gender, receiptId: $receiptId, birthDate: $birthDate, status: $status, photoUrl: $photoUrl)';
 }
 
 
@@ -52,7 +51,7 @@ abstract mixin class $ResidentCopyWith<$Res>  {
   factory $ResidentCopyWith(Resident value, $Res Function(Resident) _then) = _$ResidentCopyWithImpl;
 @useResult
 $Res call({
- int id, String firstName, String lastName, String dni, String? photoUrl, String? status, String? emergencyContact, String? allergies, String? conditions, String? address
+ int id, String? dni, String? firstName, String? lastName, String? city, String? state, String? country, String? street, String? zipCode, String? gender, int? receiptId,@DateOnlyConverter() DateTime? birthDate, String? status, String? photoUrl
 });
 
 
@@ -69,18 +68,22 @@ class _$ResidentCopyWithImpl<$Res>
 
 /// Create a copy of Resident
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? firstName = null,Object? lastName = null,Object? dni = null,Object? photoUrl = freezed,Object? status = freezed,Object? emergencyContact = freezed,Object? allergies = freezed,Object? conditions = freezed,Object? address = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? dni = freezed,Object? firstName = freezed,Object? lastName = freezed,Object? city = freezed,Object? state = freezed,Object? country = freezed,Object? street = freezed,Object? zipCode = freezed,Object? gender = freezed,Object? receiptId = freezed,Object? birthDate = freezed,Object? status = freezed,Object? photoUrl = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as int,firstName: null == firstName ? _self.firstName : firstName // ignore: cast_nullable_to_non_nullable
-as String,lastName: null == lastName ? _self.lastName : lastName // ignore: cast_nullable_to_non_nullable
-as String,dni: null == dni ? _self.dni : dni // ignore: cast_nullable_to_non_nullable
-as String,photoUrl: freezed == photoUrl ? _self.photoUrl : photoUrl // ignore: cast_nullable_to_non_nullable
-as String?,status: freezed == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
-as String?,emergencyContact: freezed == emergencyContact ? _self.emergencyContact : emergencyContact // ignore: cast_nullable_to_non_nullable
-as String?,allergies: freezed == allergies ? _self.allergies : allergies // ignore: cast_nullable_to_non_nullable
-as String?,conditions: freezed == conditions ? _self.conditions : conditions // ignore: cast_nullable_to_non_nullable
-as String?,address: freezed == address ? _self.address : address // ignore: cast_nullable_to_non_nullable
+as int,dni: freezed == dni ? _self.dni : dni // ignore: cast_nullable_to_non_nullable
+as String?,firstName: freezed == firstName ? _self.firstName : firstName // ignore: cast_nullable_to_non_nullable
+as String?,lastName: freezed == lastName ? _self.lastName : lastName // ignore: cast_nullable_to_non_nullable
+as String?,city: freezed == city ? _self.city : city // ignore: cast_nullable_to_non_nullable
+as String?,state: freezed == state ? _self.state : state // ignore: cast_nullable_to_non_nullable
+as String?,country: freezed == country ? _self.country : country // ignore: cast_nullable_to_non_nullable
+as String?,street: freezed == street ? _self.street : street // ignore: cast_nullable_to_non_nullable
+as String?,zipCode: freezed == zipCode ? _self.zipCode : zipCode // ignore: cast_nullable_to_non_nullable
+as String?,gender: freezed == gender ? _self.gender : gender // ignore: cast_nullable_to_non_nullable
+as String?,receiptId: freezed == receiptId ? _self.receiptId : receiptId // ignore: cast_nullable_to_non_nullable
+as int?,birthDate: freezed == birthDate ? _self.birthDate : birthDate // ignore: cast_nullable_to_non_nullable
+as DateTime?,status: freezed == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as String?,photoUrl: freezed == photoUrl ? _self.photoUrl : photoUrl // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }
@@ -166,10 +169,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String firstName,  String lastName,  String dni,  String? photoUrl,  String? status,  String? emergencyContact,  String? allergies,  String? conditions,  String? address)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String? dni,  String? firstName,  String? lastName,  String? city,  String? state,  String? country,  String? street,  String? zipCode,  String? gender,  int? receiptId, @DateOnlyConverter()  DateTime? birthDate,  String? status,  String? photoUrl)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Resident() when $default != null:
-return $default(_that.id,_that.firstName,_that.lastName,_that.dni,_that.photoUrl,_that.status,_that.emergencyContact,_that.allergies,_that.conditions,_that.address);case _:
+return $default(_that.id,_that.dni,_that.firstName,_that.lastName,_that.city,_that.state,_that.country,_that.street,_that.zipCode,_that.gender,_that.receiptId,_that.birthDate,_that.status,_that.photoUrl);case _:
   return orElse();
 
 }
@@ -187,10 +190,10 @@ return $default(_that.id,_that.firstName,_that.lastName,_that.dni,_that.photoUrl
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String firstName,  String lastName,  String dni,  String? photoUrl,  String? status,  String? emergencyContact,  String? allergies,  String? conditions,  String? address)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String? dni,  String? firstName,  String? lastName,  String? city,  String? state,  String? country,  String? street,  String? zipCode,  String? gender,  int? receiptId, @DateOnlyConverter()  DateTime? birthDate,  String? status,  String? photoUrl)  $default,) {final _that = this;
 switch (_that) {
 case _Resident():
-return $default(_that.id,_that.firstName,_that.lastName,_that.dni,_that.photoUrl,_that.status,_that.emergencyContact,_that.allergies,_that.conditions,_that.address);case _:
+return $default(_that.id,_that.dni,_that.firstName,_that.lastName,_that.city,_that.state,_that.country,_that.street,_that.zipCode,_that.gender,_that.receiptId,_that.birthDate,_that.status,_that.photoUrl);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -207,10 +210,10 @@ return $default(_that.id,_that.firstName,_that.lastName,_that.dni,_that.photoUrl
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String firstName,  String lastName,  String dni,  String? photoUrl,  String? status,  String? emergencyContact,  String? allergies,  String? conditions,  String? address)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String? dni,  String? firstName,  String? lastName,  String? city,  String? state,  String? country,  String? street,  String? zipCode,  String? gender,  int? receiptId, @DateOnlyConverter()  DateTime? birthDate,  String? status,  String? photoUrl)?  $default,) {final _that = this;
 switch (_that) {
 case _Resident() when $default != null:
-return $default(_that.id,_that.firstName,_that.lastName,_that.dni,_that.photoUrl,_that.status,_that.emergencyContact,_that.allergies,_that.conditions,_that.address);case _:
+return $default(_that.id,_that.dni,_that.firstName,_that.lastName,_that.city,_that.state,_that.country,_that.street,_that.zipCode,_that.gender,_that.receiptId,_that.birthDate,_that.status,_that.photoUrl);case _:
   return null;
 
 }
@@ -222,23 +225,26 @@ return $default(_that.id,_that.firstName,_that.lastName,_that.dni,_that.photoUrl
 @JsonSerializable()
 
 class _Resident extends Resident {
-  const _Resident({required this.id, required this.firstName, required this.lastName, required this.dni, this.photoUrl, this.status, this.emergencyContact, this.allergies, this.conditions, this.address}): super._();
+  const _Resident({required this.id, this.dni, this.firstName, this.lastName, this.city, this.state, this.country, this.street, this.zipCode, this.gender, this.receiptId, @DateOnlyConverter() this.birthDate, this.status, this.photoUrl}): super._();
   factory _Resident.fromJson(Map<String, dynamic> json) => _$ResidentFromJson(json);
 
 @override final  int id;
-@override final  String firstName;
-@override final  String lastName;
-@override final  String dni;
-// Backend doesn't seem to return age directly in the resource, but we can calculate it or add it if available.
-// For now, let's assume the backend might provide birthDate or we keep age if it's there.
-// Looking at the controller, ResidentResource is returned. Let's assume it has basic info.
-// We'll add nullable fields for details that might not be in the list view.
-@override final  String? photoUrl;
+@override final  String? dni;
+@override final  String? firstName;
+@override final  String? lastName;
+// Nuevos campos según tu JSON
+@override final  String? city;
+@override final  String? state;
+@override final  String? country;
+@override final  String? street;
+@override final  String? zipCode;
+@override final  String? gender;
+@override final  int? receiptId;
+// Usamos el converter para manejar "1990-05-11"
+@override@DateOnlyConverter() final  DateTime? birthDate;
+// Campos opcionales que tenías antes (por si el backend los agrega luego)
 @override final  String? status;
-@override final  String? emergencyContact;
-@override final  String? allergies;
-@override final  String? conditions;
-@override final  String? address;
+@override final  String? photoUrl;
 
 /// Create a copy of Resident
 /// with the given fields replaced by the non-null parameter values.
@@ -253,16 +259,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Resident&&(identical(other.id, id) || other.id == id)&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.lastName, lastName) || other.lastName == lastName)&&(identical(other.dni, dni) || other.dni == dni)&&(identical(other.photoUrl, photoUrl) || other.photoUrl == photoUrl)&&(identical(other.status, status) || other.status == status)&&(identical(other.emergencyContact, emergencyContact) || other.emergencyContact == emergencyContact)&&(identical(other.allergies, allergies) || other.allergies == allergies)&&(identical(other.conditions, conditions) || other.conditions == conditions)&&(identical(other.address, address) || other.address == address));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Resident&&(identical(other.id, id) || other.id == id)&&(identical(other.dni, dni) || other.dni == dni)&&(identical(other.firstName, firstName) || other.firstName == firstName)&&(identical(other.lastName, lastName) || other.lastName == lastName)&&(identical(other.city, city) || other.city == city)&&(identical(other.state, state) || other.state == state)&&(identical(other.country, country) || other.country == country)&&(identical(other.street, street) || other.street == street)&&(identical(other.zipCode, zipCode) || other.zipCode == zipCode)&&(identical(other.gender, gender) || other.gender == gender)&&(identical(other.receiptId, receiptId) || other.receiptId == receiptId)&&(identical(other.birthDate, birthDate) || other.birthDate == birthDate)&&(identical(other.status, status) || other.status == status)&&(identical(other.photoUrl, photoUrl) || other.photoUrl == photoUrl));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,firstName,lastName,dni,photoUrl,status,emergencyContact,allergies,conditions,address);
+int get hashCode => Object.hash(runtimeType,id,dni,firstName,lastName,city,state,country,street,zipCode,gender,receiptId,birthDate,status,photoUrl);
 
 @override
 String toString() {
-  return 'Resident(id: $id, firstName: $firstName, lastName: $lastName, dni: $dni, photoUrl: $photoUrl, status: $status, emergencyContact: $emergencyContact, allergies: $allergies, conditions: $conditions, address: $address)';
+  return 'Resident(id: $id, dni: $dni, firstName: $firstName, lastName: $lastName, city: $city, state: $state, country: $country, street: $street, zipCode: $zipCode, gender: $gender, receiptId: $receiptId, birthDate: $birthDate, status: $status, photoUrl: $photoUrl)';
 }
 
 
@@ -273,7 +279,7 @@ abstract mixin class _$ResidentCopyWith<$Res> implements $ResidentCopyWith<$Res>
   factory _$ResidentCopyWith(_Resident value, $Res Function(_Resident) _then) = __$ResidentCopyWithImpl;
 @override @useResult
 $Res call({
- int id, String firstName, String lastName, String dni, String? photoUrl, String? status, String? emergencyContact, String? allergies, String? conditions, String? address
+ int id, String? dni, String? firstName, String? lastName, String? city, String? state, String? country, String? street, String? zipCode, String? gender, int? receiptId,@DateOnlyConverter() DateTime? birthDate, String? status, String? photoUrl
 });
 
 
@@ -290,18 +296,22 @@ class __$ResidentCopyWithImpl<$Res>
 
 /// Create a copy of Resident
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? firstName = null,Object? lastName = null,Object? dni = null,Object? photoUrl = freezed,Object? status = freezed,Object? emergencyContact = freezed,Object? allergies = freezed,Object? conditions = freezed,Object? address = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? dni = freezed,Object? firstName = freezed,Object? lastName = freezed,Object? city = freezed,Object? state = freezed,Object? country = freezed,Object? street = freezed,Object? zipCode = freezed,Object? gender = freezed,Object? receiptId = freezed,Object? birthDate = freezed,Object? status = freezed,Object? photoUrl = freezed,}) {
   return _then(_Resident(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
-as int,firstName: null == firstName ? _self.firstName : firstName // ignore: cast_nullable_to_non_nullable
-as String,lastName: null == lastName ? _self.lastName : lastName // ignore: cast_nullable_to_non_nullable
-as String,dni: null == dni ? _self.dni : dni // ignore: cast_nullable_to_non_nullable
-as String,photoUrl: freezed == photoUrl ? _self.photoUrl : photoUrl // ignore: cast_nullable_to_non_nullable
-as String?,status: freezed == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
-as String?,emergencyContact: freezed == emergencyContact ? _self.emergencyContact : emergencyContact // ignore: cast_nullable_to_non_nullable
-as String?,allergies: freezed == allergies ? _self.allergies : allergies // ignore: cast_nullable_to_non_nullable
-as String?,conditions: freezed == conditions ? _self.conditions : conditions // ignore: cast_nullable_to_non_nullable
-as String?,address: freezed == address ? _self.address : address // ignore: cast_nullable_to_non_nullable
+as int,dni: freezed == dni ? _self.dni : dni // ignore: cast_nullable_to_non_nullable
+as String?,firstName: freezed == firstName ? _self.firstName : firstName // ignore: cast_nullable_to_non_nullable
+as String?,lastName: freezed == lastName ? _self.lastName : lastName // ignore: cast_nullable_to_non_nullable
+as String?,city: freezed == city ? _self.city : city // ignore: cast_nullable_to_non_nullable
+as String?,state: freezed == state ? _self.state : state // ignore: cast_nullable_to_non_nullable
+as String?,country: freezed == country ? _self.country : country // ignore: cast_nullable_to_non_nullable
+as String?,street: freezed == street ? _self.street : street // ignore: cast_nullable_to_non_nullable
+as String?,zipCode: freezed == zipCode ? _self.zipCode : zipCode // ignore: cast_nullable_to_non_nullable
+as String?,gender: freezed == gender ? _self.gender : gender // ignore: cast_nullable_to_non_nullable
+as String?,receiptId: freezed == receiptId ? _self.receiptId : receiptId // ignore: cast_nullable_to_non_nullable
+as int?,birthDate: freezed == birthDate ? _self.birthDate : birthDate // ignore: cast_nullable_to_non_nullable
+as DateTime?,status: freezed == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as String?,photoUrl: freezed == photoUrl ? _self.photoUrl : photoUrl // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }

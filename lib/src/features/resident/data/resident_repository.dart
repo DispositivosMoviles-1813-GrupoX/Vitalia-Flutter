@@ -25,6 +25,7 @@ class ResidentRepository {
     final response = await http.get(url, headers: headers);
 
     if (response.statusCode == 200) {
+      print("ResidentRepository: JSON Response: ${response.body}");
       final json = jsonDecode(response.body);
       return Resident.fromJson(json);
     } else {

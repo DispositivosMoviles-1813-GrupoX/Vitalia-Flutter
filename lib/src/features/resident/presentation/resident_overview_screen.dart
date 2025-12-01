@@ -97,7 +97,7 @@ class ResidentOverviewScreen extends ConsumerWidget {
                 // ),
                 const SizedBox(height: 6),
                 Text(
-                  "DNI: ${resident.dni}",
+                  "DNI: ${resident.dni ?? 'No registrado'}",
                   style: TextStyle(
                     fontSize: 12,
                     color: Colors.white.withOpacity(0.8),

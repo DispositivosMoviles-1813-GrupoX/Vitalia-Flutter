@@ -9,22 +9,29 @@ class Resident with _$Resident {
 
   const factory Resident({
     required int id,
-    required String firstName,
-    required String lastName,
-    required String dni,
-    // Backend doesn't seem to return age directly in the resource, but we can calculate it or add it if available.
-    // For now, let's assume the backend might provide birthDate or we keep age if it's there.
-    // Looking at the controller, ResidentResource is returned. Let's assume it has basic info.
-    // We'll add nullable fields for details that might not be in the list view.
-    String? photoUrl, 
+    String? dni,
+    String? firstName,
+    String? lastName,
+
+    String? city,
+    String? state,
+    String? country,
+    String? street,
+    String? zipCode,
+    String? gender,
+    int? receiptId,
+    // Usamos el converter para manejar "1990-05-11"
+    @DateOnlyConverter() DateTime? birthDate,
+
+    // Campos opcionales
     String? status,
-    String? emergencyContact,
-    String? allergies,
-    String? conditions,
-    String? address,
+    String? photoUrl,
   }) = _Resident;
 
-  String get fullName => '$firstName $lastName';
+  String get fullName => '${firstName ?? ''} ${lastName ?? ''}'.trim();
+
+  // Getter útil para la UI
+  String get fullAddress => '$street, $city, $state';
 
   factory Resident.fromJson(Map<String, dynamic> json) =>
       _$ResidentFromJson(json);
@@ -33,3 +40,18 @@ class Resident with _$Resident {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
+// convertidor de fechas
+class DateOnlyConverter implements JsonConverter<DateTime?, String?> {
+  const DateOnlyConverter();
+
+  @override
+  DateTime? fromJson(String? json) => json == null ? null : DateTime.parse(json);
+
+  @override
+  String? toJson(DateTime? object) {
+    if (object == null) return null;
+    return '${object.year.toString().padLeft(4, '0')}-'
+        '${object.month.toString().padLeft(2, '0')}-'
+        '${object.day.toString().padLeft(2, '0')}';
+  }
+}
