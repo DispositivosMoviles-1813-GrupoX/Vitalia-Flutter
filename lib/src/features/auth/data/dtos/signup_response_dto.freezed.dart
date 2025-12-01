@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$SignUpResponseDto {
 
- int get id; String get username; List<String> get roles;
+ int get id; String get username; String get emailAddress; List<String> get roles;
 /// Create a copy of SignUpResponseDto
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $SignUpResponseDtoCopyWith<SignUpResponseDto> get copyWith => _$SignUpResponseDt
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is SignUpResponseDto&&(identical(other.id, id) || other.id == id)&&(identical(other.username, username) || other.username == username)&&const DeepCollectionEquality().equals(other.roles, roles));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is SignUpResponseDto&&(identical(other.id, id) || other.id == id)&&(identical(other.username, username) || other.username == username)&&(identical(other.emailAddress, emailAddress) || other.emailAddress == emailAddress)&&const DeepCollectionEquality().equals(other.roles, roles));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,username,const DeepCollectionEquality().hash(roles));
+int get hashCode => Object.hash(runtimeType,id,username,emailAddress,const DeepCollectionEquality().hash(roles));
 
 @override
 String toString() {
-  return 'SignUpResponseDto(id: $id, username: $username, roles: $roles)';
+  return 'SignUpResponseDto(id: $id, username: $username, emailAddress: $emailAddress, roles: $roles)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $SignUpResponseDtoCopyWith<$Res>  {
   factory $SignUpResponseDtoCopyWith(SignUpResponseDto value, $Res Function(SignUpResponseDto) _then) = _$SignUpResponseDtoCopyWithImpl;
 @useResult
 $Res call({
- int id, String username, List<String> roles
+ int id, String username, String emailAddress, List<String> roles
 });
 
 
@@ -65,10 +65,11 @@ class _$SignUpResponseDtoCopyWithImpl<$Res>
 
 /// Create a copy of SignUpResponseDto
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? username = null,Object? roles = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? username = null,Object? emailAddress = null,Object? roles = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,username: null == username ? _self.username : username // ignore: cast_nullable_to_non_nullable
+as String,emailAddress: null == emailAddress ? _self.emailAddress : emailAddress // ignore: cast_nullable_to_non_nullable
 as String,roles: null == roles ? _self.roles : roles // ignore: cast_nullable_to_non_nullable
 as List<String>,
   ));
@@ -155,10 +156,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String username,  List<String> roles)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String username,  String emailAddress,  List<String> roles)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _SignUpResponseDto() when $default != null:
-return $default(_that.id,_that.username,_that.roles);case _:
+return $default(_that.id,_that.username,_that.emailAddress,_that.roles);case _:
   return orElse();
 
 }
@@ -176,10 +177,10 @@ return $default(_that.id,_that.username,_that.roles);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String username,  List<String> roles)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String username,  String emailAddress,  List<String> roles)  $default,) {final _that = this;
 switch (_that) {
 case _SignUpResponseDto():
-return $default(_that.id,_that.username,_that.roles);case _:
+return $default(_that.id,_that.username,_that.emailAddress,_that.roles);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -196,10 +197,10 @@ return $default(_that.id,_that.username,_that.roles);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String username,  List<String> roles)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String username,  String emailAddress,  List<String> roles)?  $default,) {final _that = this;
 switch (_that) {
 case _SignUpResponseDto() when $default != null:
-return $default(_that.id,_that.username,_that.roles);case _:
+return $default(_that.id,_that.username,_that.emailAddress,_that.roles);case _:
   return null;
 
 }
@@ -211,11 +212,12 @@ return $default(_that.id,_that.username,_that.roles);case _:
 @JsonSerializable()
 
 class _SignUpResponseDto implements SignUpResponseDto {
-  const _SignUpResponseDto({required this.id, required this.username, required final  List<String> roles}): _roles = roles;
+  const _SignUpResponseDto({required this.id, required this.username, required this.emailAddress, required final  List<String> roles}): _roles = roles;
   factory _SignUpResponseDto.fromJson(Map<String, dynamic> json) => _$SignUpResponseDtoFromJson(json);
 
 @override final  int id;
 @override final  String username;
+@override final  String emailAddress;
  final  List<String> _roles;
 @override List<String> get roles {
   if (_roles is EqualUnmodifiableListView) return _roles;
@@ -237,16 +239,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SignUpResponseDto&&(identical(other.id, id) || other.id == id)&&(identical(other.username, username) || other.username == username)&&const DeepCollectionEquality().equals(other._roles, _roles));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _SignUpResponseDto&&(identical(other.id, id) || other.id == id)&&(identical(other.username, username) || other.username == username)&&(identical(other.emailAddress, emailAddress) || other.emailAddress == emailAddress)&&const DeepCollectionEquality().equals(other._roles, _roles));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,username,const DeepCollectionEquality().hash(_roles));
+int get hashCode => Object.hash(runtimeType,id,username,emailAddress,const DeepCollectionEquality().hash(_roles));
 
 @override
 String toString() {
-  return 'SignUpResponseDto(id: $id, username: $username, roles: $roles)';
+  return 'SignUpResponseDto(id: $id, username: $username, emailAddress: $emailAddress, roles: $roles)';
 }
 
 
@@ -257,7 +259,7 @@ abstract mixin class _$SignUpResponseDtoCopyWith<$Res> implements $SignUpRespons
   factory _$SignUpResponseDtoCopyWith(_SignUpResponseDto value, $Res Function(_SignUpResponseDto) _then) = __$SignUpResponseDtoCopyWithImpl;
 @override @useResult
 $Res call({
- int id, String username, List<String> roles
+ int id, String username, String emailAddress, List<String> roles
 });
 
 
@@ -274,10 +276,11 @@ class __$SignUpResponseDtoCopyWithImpl<$Res>
 
 /// Create a copy of SignUpResponseDto
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? username = null,Object? roles = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? username = null,Object? emailAddress = null,Object? roles = null,}) {
   return _then(_SignUpResponseDto(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,username: null == username ? _self.username : username // ignore: cast_nullable_to_non_nullable
+as String,emailAddress: null == emailAddress ? _self.emailAddress : emailAddress // ignore: cast_nullable_to_non_nullable
 as String,roles: null == roles ? _self._roles : roles // ignore: cast_nullable_to_non_nullable
 as List<String>,
   ));

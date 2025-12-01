@@ -1,19 +1,18 @@
-class MedicalHistory {
+class MentalHealthRecord {
   final int? id;
   final DateTime date;
   final String diagnosis;
   final String treatment;
 
-  MedicalHistory({
+  MentalHealthRecord({
     this.id,
     required this.date,
     required this.diagnosis,
     required this.treatment,
   });
 
-  // Un factory constructor para crear una instancia desde un JSON (mapa)
-  factory MedicalHistory.fromJson(Map<String, dynamic> json) {
-    return MedicalHistory(
+  factory MentalHealthRecord.fromJson(Map<String, dynamic> json) {
+    return MentalHealthRecord(
       id: json['id'] as int?,
       date: DateTime.parse(json['date']),
       diagnosis: json['diagnosis'] as String,

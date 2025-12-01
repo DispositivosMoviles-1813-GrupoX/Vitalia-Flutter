@@ -2,39 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../auth/application/auth_notifier.dart';
-
-
-class Resident {
-  final String id;
-  final String fullName;
-  final int age;
-  final String photoUrl;
-  final String status;
-  final DateTime lastUpdate;
-
-  Resident({
-    required this.id,
-    required this.fullName,
-    required this.age,
-    required this.photoUrl,
-    required this.status,
-    required this.lastUpdate,
-  });
-}
-
-final residentProvider = FutureProvider<Resident>((ref) async {
-  await Future.delayed(const Duration(milliseconds: 900));
-
-  return Resident(
-    id: "1",
-    fullName: "Jorge Gonzáles",
-    age: 82,
-    photoUrl: "https://i.pravatar.cc/150?img=65",
-    status: "Estable",
-    lastUpdate: DateTime.now(),
-  );
-});
-// --------------------------------------------------
+import '../application/resident_provider.dart';
+import '../domain/resident.dart';
 
 class ResidentOverviewScreen extends ConsumerWidget {
   const ResidentOverviewScreen({super.key});
@@ -104,7 +73,7 @@ class ResidentOverviewScreen extends ConsumerWidget {
         children: [
           CircleAvatar(
             radius: 42,
-            backgroundImage: NetworkImage(resident.photoUrl),
+            backgroundImage: NetworkImage(resident.photoUrl ?? "https://i.pravatar.cc/150?img=65"),
           ),
           const SizedBox(width: 16),
 
@@ -121,13 +90,14 @@ class ResidentOverviewScreen extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: 4),
-                Text(
-                  "${resident.age} años",
-                  style: TextStyle(color: Colors.white.withOpacity(0.9)),
-                ),
+                // Age is not currently in the basic resource, might need details or calculation
+                // Text(
+                //   "${resident.age} años",
+                //   style: TextStyle(color: Colors.white.withOpacity(0.9)),
+                // ),
                 const SizedBox(height: 6),
                 Text(
-                  "Última actualización: hace unos minutos",
+                  "DNI: ${resident.dni}",
                   style: TextStyle(
                     fontSize: 12,
                     color: Colors.white.withOpacity(0.8),
@@ -158,7 +128,7 @@ class ResidentOverviewScreen extends ConsumerWidget {
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         subtitle: Text(
-          resident.status,
+          resident.status ?? "Desconocido",
           style: const TextStyle(fontSize: 15),
         ),
       ),
@@ -249,3 +219,4 @@ class ResidentOverviewScreen extends ConsumerWidget {
     );
   }
 }
+
