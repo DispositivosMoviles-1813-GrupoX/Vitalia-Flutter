@@ -1,49 +1,52 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../application/resident_provider.dart';
+import '../domain/resident.dart';
 
-class ResidentProfileScreen extends StatelessWidget {
+class ResidentProfileScreen extends ConsumerStatefulWidget {
   const ResidentProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  ConsumerState<ResidentProfileScreen> createState() => _ResidentProfileScreenState();
+}
 
-    final profile = {
-      "fullName": "Jorge Gonzáles",
-      "age": 82,
-      "photoUrl": "https://i.pravatar.cc/150?img=65",
-      "emergencyContact": "987654321",
-      "allergies": "Penicilina, Mariscos",
-      "conditions": "Hipertensión, Diabetes tipo 2",
-      "address": "Residencia Vitalia - Habitación 204",
-    };
+class _ResidentProfileScreenState extends ConsumerState<ResidentProfileScreen> {
+  @override
+  Widget build(BuildContext context) {
+    // Let's use the residentProvider which already handles fetching the correct resident for the user.
+    final residentAsync = ref.watch(residentProvider);
 
     return Scaffold(
       appBar: AppBar(title: const Text("Perfil del Residente")),
-      body: ListView(
-        padding: const EdgeInsets.all(20),
-        children: [
-          Center(
-            child: CircleAvatar(
-              radius: 60,
-              backgroundImage: NetworkImage(profile["photoUrl"] as String),
+      body: residentAsync.when(
+        data: (resident) => ListView(
+          padding: const EdgeInsets.all(20),
+          children: [
+            Center(
+              child: CircleAvatar(
+                radius: 60,
+                backgroundImage: NetworkImage(resident.photoUrl ?? "https://i.pravatar.cc/150?img=65"),
+              ),
             ),
-          ),
-          const SizedBox(height: 20),
-          Center(
-            child: Text(
-              profile["fullName"] as String,
-              style: const TextStyle(
-                  fontSize: 24, fontWeight: FontWeight.bold),
+            const SizedBox(height: 20),
+            Center(
+              child: Text(
+                resident.fullName,
+                style: const TextStyle(
+                    fontSize: 24, fontWeight: FontWeight.bold),
+              ),
             ),
-          ),
-          Center(child: Text("${profile["age"]} años")),
+            const SizedBox(height: 30),
 
-          const SizedBox(height: 30),
-
-          _item("Contacto de emergencia", profile["emergencyContact"] as String),
-          _item("Alergias", profile["allergies"] as String),
-          _item("Condiciones médicas", profile["conditions"] as String),
-          _item("Ubicación", profile["address"] as String),
-        ],
+            _item("DNI", resident.dni),
+            _item("Contacto de emergencia", resident.emergencyContact ?? "No registrado"),
+            _item("Alergias", resident.allergies ?? "Ninguna"),
+            _item("Condiciones médicas", resident.conditions ?? "Ninguna"),
+            _item("Ubicación", resident.address ?? "No registrada"),
+          ],
+        ),
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (err, stack) => Center(child: Text("Error al cargar perfil: $err")),
       ),
     );
   }
@@ -58,3 +61,4 @@ class ResidentProfileScreen extends StatelessWidget {
     );
   }
 }
+
