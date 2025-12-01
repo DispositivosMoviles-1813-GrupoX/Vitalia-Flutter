@@ -7,19 +7,27 @@ part of 'resident.dart';
 // **************************************************************************
 
 _Resident _$ResidentFromJson(Map<String, dynamic> json) => _Resident(
-  id: json['id'] as String,
-  fullName: json['fullName'] as String,
-  age: (json['age'] as num).toInt(),
-  photoUrl: json['photoUrl'] as String,
-  status: json['status'] as String,
-  lastUpdate: DateTime.parse(json['lastUpdate'] as String),
+  id: (json['id'] as num).toInt(),
+  firstName: json['firstName'] as String,
+  lastName: json['lastName'] as String,
+  dni: json['dni'] as String,
+  photoUrl: json['photoUrl'] as String?,
+  status: json['status'] as String?,
+  emergencyContact: json['emergencyContact'] as String?,
+  allergies: json['allergies'] as String?,
+  conditions: json['conditions'] as String?,
+  address: json['address'] as String?,
 );
 
 Map<String, dynamic> _$ResidentToJson(_Resident instance) => <String, dynamic>{
   'id': instance.id,
-  'fullName': instance.fullName,
-  'age': instance.age,
+  'firstName': instance.firstName,
+  'lastName': instance.lastName,
+  'dni': instance.dni,
   'photoUrl': instance.photoUrl,
   'status': instance.status,
-  'lastUpdate': instance.lastUpdate.toIso8601String(),
+  'emergencyContact': instance.emergencyContact,
+  'allergies': instance.allergies,
+  'conditions': instance.conditions,
+  'address': instance.address,
 };
