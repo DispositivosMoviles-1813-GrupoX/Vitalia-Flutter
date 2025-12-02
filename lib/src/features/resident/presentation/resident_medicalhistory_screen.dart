@@ -122,29 +122,37 @@ class _ResidentMedicalHistoryScreenState
     final residentAsync = ref.watch(residentProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Historial Médico")),
+      backgroundColor: Colors.grey[50],
+      appBar: AppBar(
+        title: const Text(
+          "Historial Médico",
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87),
+        ),
+        centerTitle: true,
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        iconTheme: const IconThemeData(color: Colors.black87),
+      ),
       body: residentAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text("Error al cargar residente: $e")),
         data: (resident) {
-          // Ensure resident.id is not null before proceeding
           if (resident.id == null) {
             return const Center(child: Text("ID de residente no disponible."));
           }
 
-          // If _historiesFuture hasn't been initialized yet (e.g., first build after resident data is available)
-          // or if the resident ID has changed, re-initialize it.
-          // This check is mostly for safety, as didChangeDependencies should handle it.
           if (_currentResidentId == null || _currentResidentId != resident.id) {
             _currentResidentId = resident.id;
             _historiesFuture = ref.read(medicalHistoryRepositoryProvider).getMedicalHistories(resident.id!);
           }
 
           return Scaffold(
-             // Floating action button needs resident ID
+            backgroundColor: Colors.transparent,
             floatingActionButton: FloatingActionButton(
               onPressed: () => _addMedicalHistory(resident.id!),
-              child: const Icon(Icons.add),
+              backgroundColor: Colors.deepPurple,
+              elevation: 4,
+              child: const Icon(Icons.add, color: Colors.white),
             ),
             body: FutureBuilder<List<MedicalHistory>>(
               future: _historiesFuture,
@@ -159,37 +167,97 @@ class _ResidentMedicalHistoryScreenState
                 }
 
                 if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Center(
-                      child: Text("No hay historial médico disponible."));
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.history_edu, size: 64, color: Colors.grey[300]),
+                        const SizedBox(height: 16),
+                        Text(
+                          "No hay historial médico",
+                          style: TextStyle(color: Colors.grey[500], fontSize: 16),
+                        ),
+                      ],
+                    ),
+                  );
                 }
 
                 final histories = snapshot.data!;
 
                 return ListView.builder(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   itemCount: histories.length,
                   itemBuilder: (_, i) {
                     final item = histories[i];
                     final formattedDate =
-                        DateFormat('dd/MM/yyyy').format(item.recordDate);
+                        DateFormat('dd MMM yyyy').format(item.recordDate);
 
-                    return Card(
-                      margin: const EdgeInsets.only(bottom: 12),
-                      child: ListTile(
-                        leading: const Icon(
-                            Icons.monitor_heart, color: Colors.deepPurple),
-                        title: Text(item.diagnosis),
-                        subtitle: Text("Tratamiento: ${item.treatment}"),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.03),
+                            blurRadius: 15,
+                            offset: const Offset(0, 5),
+                          ),
+                        ],
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              formattedDate,
-                              style: const TextStyle(fontSize: 12, color: Colors.black54),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 6),
+                                  decoration: BoxDecoration(
+                                    color: Colors.deepPurple.withOpacity(0.08),
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Text(
+                                    formattedDate,
+                                    style: const TextStyle(
+                                      color: Colors.deepPurple,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: Icon(Icons.delete_outline_rounded,
+                                      color: Colors.grey[400], size: 22),
+                                  onPressed: () =>
+                                      _deleteMedicalHistory(resident.id!, item.id!),
+                                  padding: EdgeInsets.zero,
+                                  constraints: const BoxConstraints(),
+                                  splashRadius: 20,
+                                ),
+                              ],
                             ),
-                            IconButton(
-                              icon: const Icon(Icons.delete, color: Colors.red),
-                              onPressed: () => _deleteMedicalHistory(resident.id!, item.id!),
+                            const SizedBox(height: 16),
+                            Text(
+                              item.diagnosis,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87,
+                                letterSpacing: -0.5,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              item.treatment,
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: Colors.grey[600],
+                                height: 1.5,
+                              ),
                             ),
                           ],
                         ),

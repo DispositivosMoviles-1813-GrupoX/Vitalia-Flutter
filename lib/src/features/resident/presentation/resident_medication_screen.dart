@@ -113,7 +113,18 @@ class _ResidentMedicationsScreenState extends ConsumerState<ResidentMedicationsS
     final residentAsync = ref.watch(residentProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Medicación")),
+      backgroundColor: Colors.blueGrey[50], // Clinical background
+      appBar: AppBar(
+        title: const Text(
+          "Medicación",
+          style: TextStyle(
+              fontWeight: FontWeight.bold, color: Colors.blueGrey),
+        ),
+        centerTitle: true,
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        iconTheme: const IconThemeData(color: Colors.blueGrey),
+      ),
       body: residentAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text("Error al cargar residente: $e")),
@@ -128,9 +139,12 @@ class _ResidentMedicationsScreenState extends ConsumerState<ResidentMedicationsS
           }
 
           return Scaffold(
-            floatingActionButton: FloatingActionButton(
+            backgroundColor: Colors.transparent,
+            floatingActionButton: FloatingActionButton.extended(
               onPressed: () => _addMedication(resident.id!),
-              child: const Icon(Icons.add),
+              backgroundColor: Colors.blue[700],
+              icon: const Icon(Icons.add, color: Colors.white),
+              label: const Text("Nueva Medicación", style: TextStyle(color: Colors.white)),
             ),
             body: FutureBuilder<List<Medication>>(
               future: _medicationsFuture,
@@ -144,7 +158,19 @@ class _ResidentMedicationsScreenState extends ConsumerState<ResidentMedicationsS
                 }
 
                 if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Center(child: Text("No hay medicación registrada."));
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.medication_outlined, size: 64, color: Colors.blue[200]),
+                        const SizedBox(height: 16),
+                        Text(
+                          "No hay medicación registrada",
+                          style: TextStyle(color: Colors.blueGrey[400], fontSize: 16),
+                        ),
+                      ],
+                    ),
+                  );
                 }
 
                 final medications = snapshot.data!;
@@ -154,14 +180,76 @@ class _ResidentMedicationsScreenState extends ConsumerState<ResidentMedicationsS
                   itemCount: medications.length,
                   itemBuilder: (_, i) {
                     final med = medications[i];
-                    return Card(
-                      child: ListTile(
-                        leading: const Icon(Icons.medication, color: Colors.blue),
-                        title: Text(med.name),
-                        subtitle: Text(med.frequency),
-                        trailing: IconButton(
-                          icon: const Icon(Icons.delete, color: Colors.red),
-                          onPressed: () => _deleteMedication(resident.id!, med.id!),
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.blue.withOpacity(0.1),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: IntrinsicHeight(
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 6,
+                                color: Colors.blue[600],
+                              ),
+                              Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Expanded(
+                                            child: Text(
+                                              med.name,
+                                              style: TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.blueGrey[800],
+                                              ),
+                                            ),
+                                          ),
+                                          IconButton(
+                                            icon: Icon(Icons.delete_outline, color: Colors.red[300]),
+                                            onPressed: () => _deleteMedication(resident.id!, med.id!),
+                                            padding: EdgeInsets.zero,
+                                            constraints: const BoxConstraints(),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Row(
+                                        children: [
+                                          Icon(Icons.access_time, size: 16, color: Colors.blue[400]),
+                                          const SizedBox(width: 8),
+                                          Text(
+                                            med.frequency,
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              color: Colors.blueGrey[600],
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     );

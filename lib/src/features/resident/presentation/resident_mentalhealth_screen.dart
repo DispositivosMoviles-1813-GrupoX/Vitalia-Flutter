@@ -115,7 +115,18 @@ class _ResidentMentalHealthScreenState
     final residentAsync = ref.watch(residentProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Salud Mental")),
+      backgroundColor: const Color(0xFFF0F8F7), // Soft teal background
+      appBar: AppBar(
+        title: const Text(
+          "Salud Mental",
+          style: TextStyle(
+              fontWeight: FontWeight.w600, color: Color(0xFF00695C)),
+        ),
+        centerTitle: true,
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        iconTheme: const IconThemeData(color: Color(0xFF00695C)),
+      ),
       body: residentAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text("Error al cargar residente: $e")),
@@ -130,15 +141,17 @@ class _ResidentMentalHealthScreenState
           }
 
           return Scaffold(
+            backgroundColor: Colors.transparent,
             floatingActionButton: FloatingActionButton(
               onPressed: () => _addRecord(resident.id!),
-              child: const Icon(Icons.add),
+              backgroundColor: const Color(0xFF26A69A),
+              child: const Icon(Icons.edit_note, color: Colors.white),
             ),
             body: FutureBuilder<List<MentalHealthRecord>>(
               future: _recordsFuture,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
+                  return const Center(child: CircularProgressIndicator(color: Color(0xFF26A69A)));
                 }
 
                 if (snapshot.hasError) {
@@ -148,7 +161,18 @@ class _ResidentMentalHealthScreenState
 
                 if (!snapshot.hasData || snapshot.data!.isEmpty) {
                   return const Center(
-                      child: Text("No hay registros de salud mental."));
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.spa_outlined, size: 64, color: Color(0xFFB2DFDB)),
+                        SizedBox(height: 16),
+                        Text(
+                          "Sin registros de salud mental",
+                          style: TextStyle(color: Color(0xFF80CBC4), fontSize: 16),
+                        ),
+                      ],
+                    ),
+                  );
                 }
 
                 final records = snapshot.data!;
@@ -159,23 +183,85 @@ class _ResidentMentalHealthScreenState
                   itemBuilder: (_, i) {
                     final item = records[i];
                     final formattedDate =
-                        DateFormat('yyyy-MM-dd').format(item.date);
+                        DateFormat('dd MMM yyyy').format(item.date);
 
-                    return Card(
-                      child: ListTile(
-                        leading: const Icon(Icons.psychology, color: Colors.teal),
-                        title: Text(item.diagnosis),
-                        subtitle: Text(item.treatment),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(24),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFF00695C).withOpacity(0.05),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              formattedDate,
-                              style: const TextStyle(fontSize: 12),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  children: [
+                                    const Icon(Icons.calendar_today_outlined, 
+                                      size: 14, color: Color(0xFF80CBC4)),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      formattedDate,
+                                      style: const TextStyle(
+                                        color: Color(0xFF4DB6AC),
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.close, color: Color(0xFFEF9A9A), size: 20),
+                                  onPressed: () => _deleteRecord(resident.id!, item.id!),
+                                  padding: EdgeInsets.zero,
+                                  constraints: const BoxConstraints(),
+                                ),
+                              ],
                             ),
-                            IconButton(
-                              icon: const Icon(Icons.delete, color: Colors.red),
-                              onPressed: () => _deleteRecord(resident.id!, item.id!),
+                            const SizedBox(height: 12),
+                            Text(
+                              item.diagnosis,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF004D40),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFE0F2F1),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Icon(Icons.healing, size: 16, color: Color(0xFF26A69A)),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      item.treatment,
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        color: Color(0xFF00796B),
+                                        height: 1.4,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
                         ),
