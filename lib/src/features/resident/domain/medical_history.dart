@@ -1,12 +1,12 @@
 class MedicalHistory {
   final int? id;
-  final DateTime date;
+  final DateTime recordDate;
   final String diagnosis;
   final String treatment;
 
   MedicalHistory({
     this.id,
-    required this.date,
+    required this.recordDate,
     required this.diagnosis,
     required this.treatment,
   });
@@ -15,7 +15,7 @@ class MedicalHistory {
   factory MedicalHistory.fromJson(Map<String, dynamic> json) {
     return MedicalHistory(
       id: json['id'] as int?,
-      date: DateTime.parse(json['date']),
+      recordDate: DateTime.parse(json['recordDate']),
       diagnosis: json['diagnosis'] as String,
       treatment: json['treatment'] as String,
     );
@@ -25,6 +25,8 @@ class MedicalHistory {
     return {
       'diagnosis': diagnosis,
       'treatment': treatment,
+      // 'recordDate' is usually set by backend, but if needed:
+      // 'recordDate': recordDate.toIso8601String(),
     };
   }
 }

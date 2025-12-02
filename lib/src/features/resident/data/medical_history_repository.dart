@@ -1,14 +1,33 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../../../core/session/session_storage.dart';
 import '../domain/medical_history.dart';
 
 class MedicalHistoryRepository {
+  final SessionStorage _storage;
   static const String baseUrl = "http://10.0.2.2:8080";
   static const String residentsEndpoint = "/api/v1/residents";
 
+  MedicalHistoryRepository(this._storage);
+
+  Future<Map<String, String>> _getHeaders() async {
+    final token = await _storage.getAccessToken();
+    return {
+      "Content-Type": "application/json",
+      if (token != null) "Authorization": "Bearer $token",
+    };
+  }
+
   Future<List<MedicalHistory>> getMedicalHistories(int residentId) async {
     final url = Uri.parse("$baseUrl$residentsEndpoint/$residentId/medical-histories");
-    final response = await http.get(url);
+    final headers = await _getHeaders();
+    print("MedicalHistoryRepository: GET $url");
+    print("MedicalHistoryRepository: Headers: $headers");
+    
+    final response = await http.get(url, headers: headers);
+
+    print("MedicalHistoryRepository: Response Status: ${response.statusCode}");
+    print("MedicalHistoryRepository: Response Body: ${response.body}");
 
     if (response.statusCode == 200) {
       final List<dynamic> jsonList = jsonDecode(response.body);
@@ -24,12 +43,19 @@ class MedicalHistoryRepository {
       "diagnosis": diagnosis,
       "treatment": treatment,
     });
+    final headers = await _getHeaders();
+
+    print("MedicalHistoryRepository: POST $url");
+    print("MedicalHistoryRepository: Body: $body");
 
     final response = await http.post(
       url,
-      headers: {"Content-Type": "application/json"},
+      headers: headers,
       body: body,
     );
+
+    print("MedicalHistoryRepository: Response Status: ${response.statusCode}");
+    print("MedicalHistoryRepository: Response Body: ${response.body}");
 
     if (response.statusCode != 201) {
       throw Exception("Error adding medical history: ${response.statusCode}");
@@ -38,7 +64,14 @@ class MedicalHistoryRepository {
 
   Future<void> deleteMedicalHistory(int residentId, int medicalHistoryId) async {
     final url = Uri.parse("$baseUrl$residentsEndpoint/$residentId/medical-histories/$medicalHistoryId");
-    final response = await http.delete(url);
+    final headers = await _getHeaders();
+    
+    print("MedicalHistoryRepository: DELETE $url");
+
+    final response = await http.delete(url, headers: headers);
+
+    print("MedicalHistoryRepository: Response Status: ${response.statusCode}");
+    print("MedicalHistoryRepository: Response Body: ${response.body}");
 
     if (response.statusCode != 204) {
       throw Exception("Error deleting medical history: ${response.statusCode}");
