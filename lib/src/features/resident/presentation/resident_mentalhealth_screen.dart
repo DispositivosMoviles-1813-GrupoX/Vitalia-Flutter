@@ -1,35 +1,42 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import '../data/mental_health_repository.dart';
+import '../application/mental_health_provider.dart';
+import '../application/resident_provider.dart';
 import '../domain/mental_health_record.dart';
 
-class ResidentMentalHealthScreen extends StatefulWidget {
+class ResidentMentalHealthScreen extends ConsumerStatefulWidget {
   const ResidentMentalHealthScreen({super.key});
 
   @override
-  State<ResidentMentalHealthScreen> createState() =>
+  ConsumerState<ResidentMentalHealthScreen> createState() =>
       _ResidentMentalHealthScreenState();
 }
 
 class _ResidentMentalHealthScreenState
-    extends State<ResidentMentalHealthScreen> {
+    extends ConsumerState<ResidentMentalHealthScreen> {
   late Future<List<MentalHealthRecord>> _recordsFuture;
-  final MentalHealthRepository _repository = MentalHealthRepository();
-  final int _residentId = 1;
+  int? _currentResidentId;
 
   @override
-  void initState() {
-    super.initState();
-    _refreshRecords();
-  }
-
-  void _refreshRecords() {
-    setState(() {
-      _recordsFuture = _repository.getMentalHealthRecords(_residentId);
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final residentAsync = ref.watch(residentProvider);
+    residentAsync.whenData((resident) {
+      if (resident.id != null && resident.id != _currentResidentId) {
+        _currentResidentId = resident.id;
+        _refreshRecords(resident.id!);
+      }
     });
   }
 
-  Future<void> _addRecord() async {
+  void _refreshRecords(int residentId) {
+    setState(() {
+      _recordsFuture = ref.read(mentalHealthRepositoryProvider).getMentalHealthRecords(residentId);
+    });
+  }
+
+  Future<void> _addRecord(int residentId) async {
     final diagnosisController = TextEditingController();
     final treatmentController = TextEditingController();
 
@@ -58,14 +65,14 @@ class _ResidentMentalHealthScreenState
           ElevatedButton(
             onPressed: () async {
               try {
-                await _repository.addMentalHealthRecord(
-                  _residentId,
+                await ref.read(mentalHealthRepositoryProvider).addMentalHealthRecord(
+                  residentId,
                   diagnosisController.text,
                   treatmentController.text,
                 );
                 if (mounted) {
                   Navigator.pop(context);
-                  _refreshRecords();
+                  _refreshRecords(residentId);
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text("Registro agregado correctamente")),
                   );
@@ -85,10 +92,10 @@ class _ResidentMentalHealthScreenState
     );
   }
 
-  Future<void> _deleteRecord(int id) async {
+  Future<void> _deleteRecord(int residentId, int id) async {
     try {
-      await _repository.deleteMentalHealthRecord(_residentId, id);
-      _refreshRecords();
+      await ref.read(mentalHealthRepositoryProvider).deleteMentalHealthRecord(residentId, id);
+      _refreshRecords(residentId);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Registro eliminado correctamente")),
@@ -105,60 +112,79 @@ class _ResidentMentalHealthScreenState
 
   @override
   Widget build(BuildContext context) {
+    final residentAsync = ref.watch(residentProvider);
+
     return Scaffold(
       appBar: AppBar(title: const Text("Salud Mental")),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _addRecord,
-        child: const Icon(Icons.add),
-      ),
-      body: FutureBuilder<List<MentalHealthRecord>>(
-        future: _recordsFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+      body: residentAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (e, _) => Center(child: Text("Error al cargar residente: $e")),
+        data: (resident) {
+          if (resident.id == null) {
+            return const Center(child: Text("ID de residente no disponible."));
           }
 
-          if (snapshot.hasError) {
-            return Center(
-                child: Text("Error al cargar datos: ${snapshot.error}"));
+          if (_currentResidentId == null || _currentResidentId != resident.id) {
+            _currentResidentId = resident.id;
+            _recordsFuture = ref.read(mentalHealthRepositoryProvider).getMentalHealthRecords(resident.id!);
           }
 
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(
-                child: Text("No hay registros de salud mental."));
-          }
+          return Scaffold(
+            floatingActionButton: FloatingActionButton(
+              onPressed: () => _addRecord(resident.id!),
+              child: const Icon(Icons.add),
+            ),
+            body: FutureBuilder<List<MentalHealthRecord>>(
+              future: _recordsFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
 
-          final records = snapshot.data!;
+                if (snapshot.hasError) {
+                  return Center(
+                      child: Text("Error al cargar datos: ${snapshot.error}"));
+                }
 
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: records.length,
-            itemBuilder: (_, i) {
-              final item = records[i];
-              final formattedDate =
-                  DateFormat('yyyy-MM-dd').format(item.date);
+                if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return const Center(
+                      child: Text("No hay registros de salud mental."));
+                }
 
-              return Card(
-                child: ListTile(
-                  leading: const Icon(Icons.psychology, color: Colors.teal),
-                  title: Text(item.diagnosis),
-                  subtitle: Text(item.treatment),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        formattedDate,
-                        style: const TextStyle(fontSize: 12),
+                final records = snapshot.data!;
+
+                return ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: records.length,
+                  itemBuilder: (_, i) {
+                    final item = records[i];
+                    final formattedDate =
+                        DateFormat('yyyy-MM-dd').format(item.date);
+
+                    return Card(
+                      child: ListTile(
+                        leading: const Icon(Icons.psychology, color: Colors.teal),
+                        title: Text(item.diagnosis),
+                        subtitle: Text(item.treatment),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              formattedDate,
+                              style: const TextStyle(fontSize: 12),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete, color: Colors.red),
+                              onPressed: () => _deleteRecord(resident.id!, item.id!),
+                            ),
+                          ],
+                        ),
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.delete, color: Colors.red),
-                        onPressed: () => _deleteRecord(item.id!),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
+                    );
+                  },
+                );
+              },
+            ),
           );
         },
       ),
