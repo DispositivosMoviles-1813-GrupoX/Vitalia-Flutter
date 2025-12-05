@@ -30,6 +30,8 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
         return Colors.blue.shade100;
       case 'archived':
         return Colors.grey.shade300;
+      case 'alert':
+        return Colors.red;
       default:
         return Colors.white;
     }
@@ -43,6 +45,8 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
         return const Icon(Icons.mark_email_unread, color: Colors.blue);
       case 'archived':
         return const Icon(Icons.archive, color: Colors.grey);
+      case 'alert':
+        return const Icon(Icons.alarm, color: Colors.white);
       default:
         return const Icon(Icons.notifications);
     }
@@ -62,7 +66,7 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
             child: DropdownButton<String>(
               value: selectedStatus,
               underline: const SizedBox(),
-              items: ['all', 'read', 'unread', 'archived']
+              items: ['all', 'read', 'unread', 'archived', 'alert']
                   .map((status) => DropdownMenuItem(
                 value: status,
                 child: Text(
