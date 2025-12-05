@@ -213,8 +213,7 @@ class HomeScreen extends ConsumerWidget {
           context.push('/resident');
         }),
         _actionItem(Icons.notifications, "Notificaciones", onTap: () {
-          // context.push('/notifications');
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Próximamente")));
+          context.push('/notifications');
         }),
         _actionItem(Icons.event, "Agendar Citas", onTap: () {
           context.push('/appointments/create');

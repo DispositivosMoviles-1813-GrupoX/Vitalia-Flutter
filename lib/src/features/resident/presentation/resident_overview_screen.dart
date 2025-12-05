@@ -199,7 +199,7 @@ class ResidentOverviewScreen extends ConsumerWidget {
           context,
           icon: Icons.notifications_active,
           title: "Notificaciones",
-          route: "/resident/notifications",
+          route: "/notifications",
         ),
         _menuCard(
           context,

@@ -41,23 +41,22 @@ final goRouterProvider = Provider<GoRouter>((ref) {
 
       final isCompletingProfile = state.matchedLocation == '/create-family-member';
 
-      // 1. Si no hay usuario, mandar al Login (a menos que ya esté ahí)
+      // Si no hay usuario se manda al Login
       if (user == null) {
         return isAuthPage ? null : '/login';
       }
 
-      // 2. REGLA DE ORO: Verificar si falta completar el perfil
-      // Ajustamos el rol a 'FAMILY' como sale en tu log
+      //Verificacion si falta completar el perfil
       final isFamily = user.role == 'FAMILY' || user.role == 'ROLE_FAMILY_MEMBER';
       final missingResident = user.residentId == null;
 
       if (isFamily && missingResident) {
-        // Si le falta residente, OBLIGARLO a ir a /create-family-member
+        // Si le falta residente, obligado a ir a /create-family-member
         // Si ya está ahí, null (dejarlo estar). Si no, redirigir.
         return isCompletingProfile ? null : '/create-family-member';
       }
 
-      // 3. Si ya tiene todo completo e intenta volver al Login o al Registro de familiar...
+      // Si ya tiene tdo completo e intenta volver al Login o al Registro de familiar...
       if (isAuthPage || (isCompletingProfile && !missingResident)) {
         return '/home';
       }

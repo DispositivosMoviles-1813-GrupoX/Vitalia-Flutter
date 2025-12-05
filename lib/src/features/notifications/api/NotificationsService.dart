@@ -4,17 +4,19 @@ import 'dart:convert';
 import '../../../core/session/session_providers.dart';
 import '../../../core/session/session_storage.dart';
 import 'NotificationResponse.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class NotificationsService {
   final SessionStorage storage;
-  final String baseUrl = 'http://10.0.2.2:8080/api/v1/notifications';
+  final String? baseUrl = dotenv.env['API_URL'];
+  final String notificationsEndpoint = '/api/v1/notifications';
 
   NotificationsService(this.storage);
 
   Future<List<NotificationResponse>> getNotifications() async {
     final token = await storage.getAccessToken();
     final response = await http.get(
-      Uri.parse(baseUrl),
+      Uri.parse("$baseUrl$notificationsEndpoint"),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
