@@ -1,5 +1,3 @@
-// Archivo: features/family/data/family_repository.dart
-
 import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
@@ -7,6 +5,7 @@ import '../../../core/session/session_providers.dart';
 import '../../../core/session/session_storage.dart';
 import './domain/family_member.dart';
 import 'dtos/create_family_member_request_dto.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 final familyRepositoryProvider = Provider<FamilyRepository>((ref) {
   final storage = ref.watch(sessionStorageProvider);
@@ -15,7 +14,7 @@ final familyRepositoryProvider = Provider<FamilyRepository>((ref) {
 
 class FamilyRepository {
   final SessionStorage _storage;
-  static const String baseUrl = "http://10.0.2.2:8080";
+  final String? baseUrl = dotenv.env['API_URL'];
   static const String familyMemberEndpoint = "/api/v1/family-members";
 
   FamilyRepository(this._storage);

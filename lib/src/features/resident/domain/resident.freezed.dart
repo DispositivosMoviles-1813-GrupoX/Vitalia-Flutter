@@ -15,9 +15,8 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Resident {
 
- int get id; String? get dni; String? get firstName; String? get lastName;// Nuevos campos según tu JSON
- String? get city; String? get state; String? get country; String? get street; String? get zipCode; String? get gender; int? get receiptId;// Usamos el converter para manejar "1990-05-11"
-@DateOnlyConverter() DateTime? get birthDate;// Campos opcionales que tenías antes (por si el backend los agrega luego)
+ int get id; String? get dni; String? get firstName; String? get lastName; String? get city; String? get state; String? get country; String? get street; String? get zipCode; String? get gender; int? get receiptId;// Usamos el converter para manejar "1990-05-11"
+@DateOnlyConverter() DateTime? get birthDate;// Campos opcionales
  String? get status; String? get photoUrl;
 /// Create a copy of Resident
 /// with the given fields replaced by the non-null parameter values.
@@ -232,7 +231,6 @@ class _Resident extends Resident {
 @override final  String? dni;
 @override final  String? firstName;
 @override final  String? lastName;
-// Nuevos campos según tu JSON
 @override final  String? city;
 @override final  String? state;
 @override final  String? country;
@@ -242,7 +240,7 @@ class _Resident extends Resident {
 @override final  int? receiptId;
 // Usamos el converter para manejar "1990-05-11"
 @override@DateOnlyConverter() final  DateTime? birthDate;
-// Campos opcionales que tenías antes (por si el backend los agrega luego)
+// Campos opcionales
 @override final  String? status;
 @override final  String? photoUrl;
 

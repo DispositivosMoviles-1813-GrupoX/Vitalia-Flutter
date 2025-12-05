@@ -1,14 +1,35 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../../../core/session/session_storage.dart';
 import '../domain/mental_health_record.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class MentalHealthRepository {
-  static const String baseUrl = "http://10.0.2.2:8093";
+  final SessionStorage _storage;
+  final String? baseUrl = dotenv.env['API_URL'];
   static const String residentsEndpoint = "/api/v1/residents";
+
+  MentalHealthRepository(this._storage);
+
+  Future<Map<String, String>> _getHeaders() async {
+    final token = await _storage.getAccessToken();
+    return {
+      "Content-Type": "application/json",
+      if (token != null) "Authorization": "Bearer $token",
+    };
+  }
 
   Future<List<MentalHealthRecord>> getMentalHealthRecords(int residentId) async {
     final url = Uri.parse("$baseUrl$residentsEndpoint/$residentId/mental-health-records");
-    final response = await http.get(url);
+    final headers = await _getHeaders();
+
+    print("MentalHealthRepository: GET $url");
+    print("MentalHealthRepository: Headers: $headers");
+
+    final response = await http.get(url, headers: headers);
+
+    print("MentalHealthRepository: Response Status: ${response.statusCode}");
+    print("MentalHealthRepository: Response Body: ${response.body}");
 
     if (response.statusCode == 200) {
       final List<dynamic> jsonList = jsonDecode(response.body);
@@ -24,12 +45,19 @@ class MentalHealthRepository {
       "diagnosis": diagnosis,
       "treatment": treatment,
     });
+    final headers = await _getHeaders();
+
+    print("MentalHealthRepository: POST $url");
+    print("MentalHealthRepository: Body: $body");
 
     final response = await http.post(
       url,
-      headers: {"Content-Type": "application/json"},
+      headers: headers,
       body: body,
     );
+
+    print("MentalHealthRepository: Response Status: ${response.statusCode}");
+    print("MentalHealthRepository: Response Body: ${response.body}");
 
     if (response.statusCode != 201) {
       throw Exception("Error adding mental health record: ${response.statusCode}");
@@ -38,7 +66,14 @@ class MentalHealthRepository {
 
   Future<void> deleteMentalHealthRecord(int residentId, int recordId) async {
     final url = Uri.parse("$baseUrl$residentsEndpoint/$residentId/mental-health-records/$recordId");
-    final response = await http.delete(url);
+    final headers = await _getHeaders();
+
+    print("MentalHealthRepository: DELETE $url");
+
+    final response = await http.delete(url, headers: headers);
+
+    print("MentalHealthRepository: Response Status: ${response.statusCode}");
+    print("MentalHealthRepository: Response Body: ${response.body}");
 
     if (response.statusCode != 204) {
       throw Exception("Error deleting mental health record: ${response.statusCode}");

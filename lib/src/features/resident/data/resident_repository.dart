@@ -3,10 +3,13 @@ import 'package:http/http.dart' as http;
 import '../../../core/session/session_storage.dart';
 import '../domain/resident.dart';
 import 'dtos/create_resident_request_dto.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+import 'dtos/update_resident_request_dto.dart';
 
 class ResidentRepository {
   final SessionStorage _storage;
-  static const String baseUrl = "http://10.0.2.2:8080";
+  final String? baseUrl = dotenv.env['API_URL'];
   static const String residentsEndpoint = "/api/v1/residents";
 
   ResidentRepository(this._storage);
@@ -74,6 +77,25 @@ class ResidentRepository {
       return Resident.fromJson(json);
     } else {
       throw Exception("Error creating resident: ${response.body}");
+    }
+  }
+
+  Future<Resident> updateResident(int id, UpdateResidentRequestDto residentDto) async {
+    final url = Uri.parse("$baseUrl$residentsEndpoint/$id");
+    final headers = await _getHeaders();
+    final body = jsonEncode(residentDto.toJson());
+
+    print("ResidentRepository: PUT $url");
+    print("ResidentRepository: Body: $body");
+
+    final response = await http.put(url, headers: headers, body: body);
+    print("ResidentRepository: Response Status: ${response.statusCode}");
+
+    if (response.statusCode == 200) {
+      final json = jsonDecode(response.body);
+      return Resident.fromJson(json);
+    } else {
+      throw Exception("Error updating resident: ${response.body}");
     }
   }
 }

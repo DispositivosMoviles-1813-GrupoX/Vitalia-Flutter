@@ -14,7 +14,7 @@ class MentalHealthRecord {
   factory MentalHealthRecord.fromJson(Map<String, dynamic> json) {
     return MentalHealthRecord(
       id: json['id'] as int?,
-      date: DateTime.parse(json['date']),
+      date: DateTime.parse(json['recordDate'] as String),
       diagnosis: json['diagnosis'] as String,
       treatment: json['treatment'] as String,
     );

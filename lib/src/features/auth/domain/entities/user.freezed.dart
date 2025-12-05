@@ -18,7 +18,7 @@ mixin _$User {
  int get id; String get username;// Backend envía "emailAddress", mapeamos a "email" en Dart
 @JsonKey(name: 'emailAddress') String get email;// Backend envía lista ["ROLE_USER"], tomamos el primero o un default
 @JsonKey(fromJson: _roleFromJson) String get role;// Estos campos NO vienen en el Auth Response.
-// Deben ser opcionales o llenarse con otra petición (ej. getFamilyProfile)
+// Deben ser opcionales o llenarse con otra petición
  String? get firstName; String? get lastName; String? get phone; String? get profileImageUrl; DateTime? get dateOfBirth; int? get residentId;
 /// Create a copy of User
 /// with the given fields replaced by the non-null parameter values.
@@ -232,7 +232,7 @@ class _User extends User {
 // Backend envía lista ["ROLE_USER"], tomamos el primero o un default
 @override@JsonKey(fromJson: _roleFromJson) final  String role;
 // Estos campos NO vienen en el Auth Response.
-// Deben ser opcionales o llenarse con otra petición (ej. getFamilyProfile)
+// Deben ser opcionales o llenarse con otra petición
 @override final  String? firstName;
 @override final  String? lastName;
 @override final  String? phone;

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:go_router/go_router.dart';
 import '../application/resident_provider.dart';
 import '../domain/resident.dart';
 
@@ -19,6 +20,16 @@ class ResidentProfileScreen extends ConsumerWidget {
         backgroundColor: Colors.white,
         elevation: 0,
         foregroundColor: Colors.teal[800],
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.edit),
+            onPressed: () {
+              residentAsync.whenData((resident) {
+                context.push('/resident/profile/edit', extra: resident);
+              });
+            },
+          ),
+        ],
       ),
       body: residentAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -75,24 +86,6 @@ class ResidentProfileScreen extends ConsumerWidget {
               ),
 
               const SizedBox(height: 24),
-
-              // --- SECCIÓN SALUD (Si tienes estos datos) ---
-/*              if (resident.allergies != null || resident.conditions != null) ...[
-                _buildSectionTitle("Información Médica"),
-                Card(
-                  elevation: 2,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  child: Column(
-                    children: [
-                      _infoTile(Icons.warning_amber, "Alergias", resident.allergies),
-                      _divider(),
-                      _infoTile(Icons.medical_services, "Condiciones", resident.conditions),
-                      _divider(),
-                      _infoTile(Icons.contact_phone, "Emergencia", resident.emergencyContact),
-                    ],
-                  ),
-                ),
-              ],*/
             ],
           ),
         ),
@@ -111,7 +104,9 @@ class ResidentProfileScreen extends ConsumerWidget {
           ),
           child: CircleAvatar(
             radius: 55,
-            backgroundImage: NetworkImage(resident.photoUrl ?? "https://i.pravatar.cc/150?img=11"),
+            backgroundImage: resident.photoUrl != null && resident.photoUrl!.isNotEmpty
+                ? NetworkImage(resident.photoUrl!)
+                : const AssetImage('assets/images/perfil.jpg') as ImageProvider,
             backgroundColor: Colors.grey[200],
           ),
         ),
