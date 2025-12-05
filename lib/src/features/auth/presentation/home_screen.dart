@@ -213,15 +213,14 @@ class HomeScreen extends ConsumerWidget {
           context.push('/resident');
         }),
         _actionItem(Icons.notifications, "Notificaciones", onTap: () {
-          // context.push('/notifications'); // TODO: Implement route
+          // context.push('/notifications');
           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Próximamente")));
         }),
-        _actionItem(Icons.event, "Citas", onTap: () {
+        _actionItem(Icons.event, "Agendar Citas", onTap: () {
           context.push('/appointments/create');
         }),
         _actionItem(Icons.local_hospital, "Doctor", onTap: () {
-          // context.push('/resident/doctor'); // TODO: Implement route
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Próximamente")));
+           context.push('/doctor-list');
         }),
       ],
     );

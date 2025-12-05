@@ -2,10 +2,11 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../../../core/session/session_storage.dart';
 import '../domain/mental_health_record.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class MentalHealthRepository {
   final SessionStorage _storage;
-  static const String baseUrl = "http://10.0.2.2:8080";
+  final String? baseUrl = dotenv.env['API_URL'];
   static const String residentsEndpoint = "/api/v1/residents";
 
   MentalHealthRepository(this._storage);

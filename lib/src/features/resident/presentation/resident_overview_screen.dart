@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -73,7 +75,9 @@ class ResidentOverviewScreen extends ConsumerWidget {
         children: [
           CircleAvatar(
             radius: 42,
-            backgroundImage: NetworkImage(resident.photoUrl ?? "https://i.pravatar.cc/150?img=65"),
+            backgroundImage: resident.photoUrl != null
+                ? NetworkImage(resident.photoUrl!)
+                : const AssetImage('assets/images/perfil.jpg') as ImageProvider,
           ),
           const SizedBox(width: 16),
 
@@ -113,22 +117,54 @@ class ResidentOverviewScreen extends ConsumerWidget {
 
   // ---------------- UID STATUS ---------------------
   Widget _currentStatusCard(Resident resident) {
+
+    final random = Random(resident.id);
+
+    final estados = [
+      "Estable",
+      "Descansando",
+      "En actividad física",
+      "Chequeo pendiente",
+      "Buen ánimo"
+    ];
+
+    final estadoSeleccionado = estados[random.nextInt(estados.length)];
+    final statusText = resident.status ?? estadoSeleccionado;
+
+    Color statusColor = Colors.grey;
+    IconData statusIcon = Icons.help_outline;
+
+    if (statusText.contains("Estable") || statusText.contains("Buen ánimo")) {
+      statusColor = Colors.green;
+      statusIcon = Icons.sentiment_satisfied_alt;
+    } else if (statusText.contains("Descansando")) {
+      statusColor = Colors.blue;
+      statusIcon = Icons.bed;
+    } else if (statusText.contains("actividad")) {
+      statusColor = Colors.orange;
+      statusIcon = Icons.directions_run;
+    } else if (statusText.contains("pendiente")) {
+      statusColor = Colors.amber;
+      statusIcon = Icons.warning_amber_rounded;
+    }
+
+    // 2. Renderizar la tarjeta
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: ListTile(
         contentPadding: const EdgeInsets.all(18),
-        leading: const CircleAvatar(
+        leading: CircleAvatar(
           radius: 26,
-          backgroundColor: Color(0x44FF5252),
-          child: Icon(Icons.monitor_heart, color: Colors.red, size: 28),
+          backgroundColor: statusColor.withAlpha(5),
+          child: Icon(statusIcon, color: statusColor, size: 28),
         ),
         title: const Text(
           "Estado actual",
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         subtitle: Text(
-          resident.status ?? "Desconocido",
+          statusText,
           style: const TextStyle(fontSize: 15),
         ),
       ),
@@ -169,7 +205,7 @@ class ResidentOverviewScreen extends ConsumerWidget {
           context,
           icon: Icons.calendar_month,
           title: "Citas Médicas",
-          route: "/resident/appointments",
+          route: "/appointment-list",
         ),
         _menuCard(
           context,

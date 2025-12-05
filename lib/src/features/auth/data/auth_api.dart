@@ -6,11 +6,12 @@ import 'package:http/http.dart' as http;
 import './dtos/auth_response_dto.dart';
 import './dtos/signup_response_dto.dart';
 import 'dtos/signup_request_dto.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 final authApiProvider = Provider<AuthApi>((ref) => AuthApi());
 
 class AuthApi {
-  static const String baseUrl = "http://10.0.2.2:8080";
+  final String? baseUrl = dotenv.env['API_URL'];
   static const String loginEndpoint = "/api/v1/authentication/sign-in";
   static const String signUpEndpoint = "/api/v1/authentication/sign-up";
 

@@ -20,7 +20,6 @@ class Resident with _$Resident {
     String? zipCode,
     String? gender,
     int? receiptId,
-    // Usamos el converter para manejar "1990-05-11"
     @DateOnlyConverter() DateTime? birthDate,
 
     // Campos opcionales

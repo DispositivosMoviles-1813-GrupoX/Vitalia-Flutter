@@ -4,10 +4,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/session/session_storage.dart';
 import '../../../core/session/session_providers.dart';
 import '../domain/doctor.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class DoctorRepository {
   final SessionStorage _storage;
-  static const String baseUrl = "http://10.0.2.2:8080";
+  final String? baseUrl = dotenv.env['API_URL'];
   static const String doctorsEndpoint = "/api/v1/doctors";
 
   DoctorRepository(this._storage);

@@ -5,14 +5,17 @@ import '../../../core/session/session_storage.dart';
 import '../../../core/session/session_providers.dart';
 import '../domain/appointment.dart';
 import 'dtos/create_appointment_request_dto.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class AppointmentRepository {
 
   final SessionStorage _storage;
-  static const String baseUrl = "http://10.0.2.2:8080";
+  final String? baseUrl = dotenv.env['API_URL'];
   static const String appointmentsEndpoint = "/api/v1/appointments";
 
-  AppointmentRepository(this._storage);
+  AppointmentRepository(this._storage) {
+    if (baseUrl == null) throw Exception("API_URL not found in .env file");
+  }
 
   Future<Map<String, String>> _getHeaders() async {
     final token = await _storage.getAccessToken();
@@ -102,6 +105,23 @@ class AppointmentRepository {
 
     if (response.statusCode != 200 && response.statusCode != 201) {
       throw Exception("Error creating appointment: ${response.body}");
+    }
+  }
+
+  Future<void> deleteAppointment(int id) async {
+    final url = Uri.parse("$baseUrl$appointmentsEndpoint/$id");
+    final headers = await _getHeaders();
+    print("AppointmentRepository: DELETE $url");
+
+    final response = await http.delete(url, headers: headers);
+    print("AppointmentRepository: Response Status: ${response.statusCode}");
+
+    if (response.statusCode == 401) {
+      throw Exception("Sesión expirada. Por favor, inicia sesión nuevamente.");
+    }
+
+    if (response.statusCode != 200 && response.statusCode != 204) {
+      throw Exception("Error deleting appointment: ${response.body}");
     }
   }
 }
