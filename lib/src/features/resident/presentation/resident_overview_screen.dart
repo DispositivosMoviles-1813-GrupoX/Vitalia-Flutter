@@ -225,6 +225,12 @@ class ResidentOverviewScreen extends ConsumerWidget {
           title: "Perfil",
           route: "/resident/profile",
         ),
+        _menuCard(
+          context,
+          icon: Icons.payments,
+          title: "Payments",
+          route: "/resident/payments",
+        )
       ],
     );
   }

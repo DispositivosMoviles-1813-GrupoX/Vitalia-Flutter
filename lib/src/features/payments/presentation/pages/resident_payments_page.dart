@@ -1,156 +1,309 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
-class ResidentPayment {
-  final String id;
-  final String doctorName;
-  final String method;
-  final String date;
-  final String amount;
+import '../../../resident/application/resident_provider.dart';
+import '../../application/receipts_providers.dart';
+import '../../data/receipts_repository.dart';
+import '../../data/dtos/create_receipt_request_dto.dart';
+import '../../domain/receipt.dart';
 
-  const ResidentPayment({
-    required this.id,
-    required this.doctorName,
-    required this.method,
-    required this.date,
-    required this.amount,
-  });
-}
-
-class ResidentPaymentsPage extends StatelessWidget {
+class ResidentPaymentsPage extends ConsumerWidget {
   const ResidentPaymentsPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // TODO: luego conectarás esto con tu capa de datos
-    const residentName = 'Jorge Gonzales';
-    const room = 'Habitación 305';
-
-    final payments = const [
-      ResidentPayment(
-        id: '1',
-        doctorName: 'Dra. María López',
-        method: 'Tarjeta de crédito',
-        date: '12 nov 2025',
-        amount: 'S/ 250.00',
-      ),
-      ResidentPayment(
-        id: '2',
-        doctorName: 'Dr. Carlos Ramírez',
-        method: 'Transferencia bancaria',
-        date: '02 nov 2025',
-        amount: 'S/ 180.00',
-      ),
-      ResidentPayment(
-        id: '3',
-        doctorName: 'Dra. María López',
-        method: 'Tarjeta de débito',
-        date: '20 oct 2025',
-        amount: 'S/ 300.00',
-      ),
-    ];
-
-    const primaryGreen = Color(0xFF00A38C);
-    const background = Color(0xFFF2F5F8);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final residentAsync = ref.watch(residentProvider);
 
     return Scaffold(
-      backgroundColor: background,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        centerTitle: true,
-        title: const Text(
-          'Pagos',
-          style: TextStyle(
-            color: Colors.black87,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
+        title: const Text('Pagos'),
+        elevation: 2,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Tarjeta principal similar al header de Vitalia
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: primaryGreen,
-                borderRadius: BorderRadius.circular(16),
+      body: residentAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (e, _) => Center(child: Text('Error: $e')),
+        data: (resident) {
+          final receiptsAsync =
+          ref.watch(receiptsByResidentProvider(resident.id));
+
+          return receiptsAsync.when(
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (e, _) => Center(child: Text('Error: $e')),
+            data: (receipts) => RefreshIndicator(
+              onRefresh: () => ref
+                  .refresh(receiptsByResidentProvider(resident.id).future),
+              child: _PaymentsContent(
+                residentId: resident.id,
+                receipts: receipts,
               ),
-              child: Row(
-                children: [
-                  // Avatar
-                  CircleAvatar(
-                    radius: 28,
-                    backgroundColor: Colors.white,
-                    child: ClipOval(
-                      child: Image.asset(
-                        'assets/images/resident_avatar.png', // o el asset que uses
-                        fit: BoxFit.cover,
-                        width: 50,
-                        height: 50,
-                      ),
-                    ),
+            ),
+          );
+        },
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => _showCreatePaymentSheet(context, ref),
+        icon: const Icon(Icons.add),
+        label: const Text('Registrar pago'),
+      ),
+    );
+  }
+
+  Future<void> _showCreatePaymentSheet(
+      BuildContext context, WidgetRef ref) async {
+    final resident = await ref.read(residentProvider.future);
+    final amountController = TextEditingController();
+    final typeController = TextEditingController(text: 'Consulta médica');
+    int paymentMethod = 0; // 0 tarjeta, 1 transferencia, 2 efectivo
+
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) {
+        return Padding(
+          padding: EdgeInsets.only(
+            left: 16,
+            right: 16,
+            top: 16,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Registrar nuevo pago',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: amountController,
+                keyboardType:
+                const TextInputType.numberWithOptions(decimal: true),
+                decoration: const InputDecoration(
+                  labelText: 'Monto pagado (S/.)',
+                  prefixIcon: Icon(Icons.payments_outlined),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: typeController,
+                decoration: const InputDecoration(
+                  labelText: 'Concepto / Tipo',
+                  prefixIcon: Icon(Icons.description_outlined),
+                ),
+              ),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<int>(
+                value: paymentMethod,
+                decoration: const InputDecoration(
+                  labelText: 'Método de pago',
+                  prefixIcon: Icon(Icons.credit_card),
+                ),
+                items: const [
+                  DropdownMenuItem(
+                    value: 0,
+                    child: Text('Tarjeta'),
                   ),
-                  const SizedBox(width: 16),
-                  // Info residente
-                  const Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          residentName,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w700,
-                          ),
+                  DropdownMenuItem(
+                    value: 1,
+                    child: Text('Transferencia'),
+                  ),
+                  DropdownMenuItem(
+                    value: 2,
+                    child: Text('Efectivo'),
+                  ),
+                ],
+                onChanged: (value) {
+                  if (value != null) {
+                    paymentMethod = value;
+                  }
+                },
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () async {
+                    final amount =
+                    double.tryParse(amountController.text.trim());
+                    if (amount == null || amount <= 0) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Ingresa un monto válido'),
                         ),
-                        SizedBox(height: 4),
-                        Text(
-                          'Residente  •  $room',
-                          style: TextStyle(
-                            color: Colors.white70,
-                            fontSize: 14,
+                      );
+                      return;
+                    }
+
+                    final now = DateTime.now();
+
+                    final dto = CreateReceiptRequestDto(
+                      issueDate: now,
+                      dueDate: now, // si manejas vencimiento, cámbialo aquí
+                      totalAmount: amount,
+                      status: true, // ya lo marcamos como pagado
+                      residentId: resident.id,
+                      paymentId: null,
+                      paymentDate: now,
+                      amountPaid: amount,
+                      paymentMethod: paymentMethod,
+                      type: typeController.text.trim(),
+                    );
+
+                    final repo =
+                    ref.read(receiptsRepositoryProvider);
+
+                    try {
+                      await repo.createReceipt(dto);
+                      if (context.mounted) {
+                        Navigator.of(context).pop();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Pago registrado correctamente'),
                           ),
-                        ),
-                        SizedBox(height: 4),
-                        Text(
-                          'Historial de pagos realizados',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 13,
+                        );
+                      }
+                      // Refrescar historial
+                      ref.invalidate(
+                          receiptsByResidentProvider(resident.id));
+                    } catch (e) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Error registrando pago: $e'),
                           ),
-                        ),
-                      ],
+                        );
+                      }
+                    }
+                  },
+                  child: const Text('Confirmar pago'),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _PaymentsContent extends StatelessWidget {
+  final int residentId;
+  final List<Receipt> receipts;
+
+  const _PaymentsContent({
+    required this.residentId,
+    required this.receipts,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (receipts.isEmpty) {
+      return ListView(
+        padding: const EdgeInsets.all(24),
+        children: const [
+          SizedBox(height: 40),
+          Icon(Icons.payments_outlined, size: 60, color: Colors.grey),
+          SizedBox(height: 16),
+          Text(
+            'Aún no tienes pagos registrados.',
+            textAlign: TextAlign.center,
+          ),
+        ],
+      );
+    }
+
+    final formatter = NumberFormat.currency(
+      locale: 'es_PE',
+      symbol: 'S/ ',
+    );
+
+    final totalPaid =
+    receipts.where((r) => r.isPaid).fold<double>(0, (sum, r) => sum + (r.amountPaid ?? 0));
+    final totalPending = receipts
+        .where((r) => !r.isPaid)
+        .fold<double>(0, (sum, r) => sum + r.totalAmount);
+
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        _SummaryCard(
+          totalPaid: totalPaid,
+          totalPending: totalPending,
+        ),
+        const SizedBox(height: 16),
+        const Text(
+          'Historial de pagos',
+          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+        ),
+        const SizedBox(height: 8),
+        ...receipts.map((r) => _ReceiptTile(receipt: r, formatter: formatter)),
+        const SizedBox(height: 80),
+      ],
+    );
+  }
+}
+
+class _SummaryCard extends StatelessWidget {
+  final double totalPaid;
+  final double totalPending;
+
+  const _SummaryCard({
+    required this.totalPaid,
+    required this.totalPending,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final formatter = NumberFormat.currency(
+      locale: 'es_PE',
+      symbol: 'S/ ',
+    );
+
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Total pagado',
+                      style: TextStyle(color: Colors.grey)),
+                  const SizedBox(height: 4),
+                  Text(
+                    formatter.format(totalPaid),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ],
               ),
             ),
-
-            const SizedBox(height: 24),
-
-            const Text(
-              'Historial de pagos',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Pendiente',
+                      style: TextStyle(color: Colors.grey)),
+                  const SizedBox(height: 4),
+                  Text(
+                    formatter.format(totalPending),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
               ),
-            ),
-            const SizedBox(height: 12),
-
-            ListView.separated(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: payments.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 8),
-              itemBuilder: (context, index) {
-                final payment = payments[index];
-                return _ResidentPaymentCard(payment: payment);
-              },
             ),
           ],
         ),
@@ -159,67 +312,80 @@ class ResidentPaymentsPage extends StatelessWidget {
   }
 }
 
-class _ResidentPaymentCard extends StatelessWidget {
-  final ResidentPayment payment;
+class _ReceiptTile extends StatelessWidget {
+  final Receipt receipt;
+  final NumberFormat formatter;
 
-  const _ResidentPaymentCard({required this.payment});
+  const _ReceiptTile({
+    required this.receipt,
+    required this.formatter,
+  });
 
   @override
   Widget build(BuildContext context) {
-    const primaryGreen = Color(0xFF00A38C);
+    final color = receipt.isPaid
+        ? Colors.green
+        : receipt.isOverdue
+        ? Colors.red
+        : Colors.orange;
+
+    final methodLabel = _paymentMethodLabel(receipt.paymentMethod);
 
     return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        child: Row(
+      margin: const EdgeInsets.symmetric(vertical: 6),
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundColor: color.withOpacity(0.1),
+          child: Icon(Icons.receipt_long, color: color),
+        ),
+        title: Text(
+          receipt.type ?? 'Pago',
+          style: const TextStyle(fontWeight: FontWeight.w600),
+        ),
+        subtitle: Text(
+          'Fecha: ${DateFormat('dd/MM/yyyy').format(receipt.paymentDate ?? receipt.issueDate)}\n'
+              'Método: $methodLabel',
+        ),
+        trailing: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Text(
+              formatter.format(receipt.amountPaid ?? receipt.totalAmount),
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 4),
             Container(
-              width: 40,
-              height: 40,
+              padding:
+              const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               decoration: BoxDecoration(
-                color: primaryGreen.withOpacity(0.1),
+                color: color.withOpacity(0.12),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(
-                Icons.receipt_long,
-                color: primaryGreen,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    payment.doctorName,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 15,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    '${payment.method} • ${payment.date}',
-                    style: const TextStyle(
-                      color: Colors.grey,
-                      fontSize: 13,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Text(
-              payment.amount,
-              style: const TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 15,
+              child: Text(
+                receipt.formattedStatus,
+                style: TextStyle(
+                  fontSize: 11,
+                  color: color,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ],
         ),
       ),
     );
+  }
+
+  String _paymentMethodLabel(int? method) {
+    switch (method) {
+      case 0:
+        return 'Tarjeta';
+      case 1:
+        return 'Transferencia';
+      case 2:
+        return 'Efectivo';
+      default:
+        return 'Otro';
+    }
   }
 }

@@ -22,6 +22,7 @@ import '../../../features/auth/application/auth_notifier.dart';
 import '../../../features/auth/presentation/login_screen.dart';
 import '../../../features/auth/presentation/signup_screen.dart';
 import '../../../features/auth/presentation/home_screen.dart';
+import '../../../features/payments/presentation/pages/resident_payments_page.dart';
 import 'go_router_notifier.dart';
 
 final goRouterProvider = Provider<GoRouter>((ref) {
@@ -86,7 +87,11 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/appointments/create', builder: (_, __) => const CreateAppointmentScreen()),
       GoRoute(path: '/doctor-list', builder: (_, __) => const DoctorListScreen()),
       GoRoute(path: '/doctor-detail', builder: (_, state) => DoctorDetailScreen(doctor: state.extra as Doctor)),
-      GoRoute(path: '/appointment-list', builder: (_, __)=> const ResidentAppointmentsScreen())
+      GoRoute(path: '/appointment-list', builder: (_, __)=> const ResidentAppointmentsScreen()),
+      GoRoute(
+        path: '/resident/payments',
+        builder: (_, __) => const ResidentPaymentsPage(),
+      )
     ],
   );
 });
