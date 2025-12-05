@@ -258,6 +258,7 @@ class _CreateAppointmentScreenState
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Cita agendada exitosamente")),
         );
+        ref.invalidate(appointmentsByResidentProvider(residentId));
         context.pop(); // Go back
       }
     } catch (e) {

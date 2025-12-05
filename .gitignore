@@ -12,7 +12,8 @@
 .swiftpm/
 migrate_working_dir/
 .env
-
+.env.*
+vitalia_key.jks
 # IntelliJ related
 *.iml
 *.ipr
