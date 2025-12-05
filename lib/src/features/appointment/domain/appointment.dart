@@ -60,6 +60,7 @@ class TimeOnlyJsonConverter implements JsonConverter<AppointmentTime, String> {
 
   @override
   AppointmentTime fromJson(String json) {
+    // La deserialización (lectura del backend) está bien si envía HH:mm:ss o HH:mm
     final parts = json.split(':');
     return AppointmentTime(
       hour: int.parse(parts[0]),
@@ -71,9 +72,11 @@ class TimeOnlyJsonConverter implements JsonConverter<AppointmentTime, String> {
 
   @override
   String toJson(AppointmentTime object) {
+    // CAMBIO CLAVE: Quitamos los segundos y dejamos solo HH:mm
     final h = object.hour.toString().padLeft(2, '0');
     final m = object.minute.toString().padLeft(2, '0');
-    final s = object.second.toString().padLeft(2, '0');
-    return "$h:$m:$s";
+
+    // El formato esperado por Java LocalTime es HH:mm (ej: "16:44")
+    return "$h:$m";
   }
 }

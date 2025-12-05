@@ -29,6 +29,40 @@ class AppointmentRepository {
       throw Exception("Sesión expirada. Por favor cierra sesión y vuelve a entrar.");
     }
 
+    // DEBUG: Decode token to check expiration and role
+    try {
+      final parts = token.split('.');
+      if (parts.length == 3) {
+        String payload = parts[1];
+        while (payload.length % 4 != 0) {
+          payload += '=';
+        }
+        final String decoded = utf8.decode(base64Url.decode(payload));
+        final Map<String, dynamic> claims = jsonDecode(decoded);
+        print("🔐 Token Claims:");
+        if (claims.containsKey('exp')) {
+          final exp = DateTime.fromMillisecondsSinceEpoch(claims['exp'] * 1000);
+          print("   - Expira: $exp (Local: ${exp.toLocal()})");
+          print("   - Ahora:  ${DateTime.now()}");
+          if (DateTime.now().isAfter(exp)) {
+            print("   ⚠️ EL TOKEN ESTÁ EXPIRADO ⚠️");
+          } else {
+             print("   ✅ El token es válido temporalmente");
+          }
+        }
+        if (claims.containsKey('role')) {
+          print("   - Role: ${claims['role']}");
+        }
+        if (claims.containsKey('sub')) {
+           print("   - Sub (Username): ${claims['sub']}");
+        }
+      } else {
+        print("⚠️ Token does not have 3 parts");
+      }
+    } catch (e) {
+      print("⚠️ Error decoding token debug info: $e");
+    }
+
     return {
       "Content-Type": "application/json",
       "Authorization": "Bearer $token",
