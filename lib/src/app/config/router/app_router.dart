@@ -83,7 +83,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(path: '/resident/reports', builder: (_, __) => const ResidentReportsScreen()),
       GoRoute(path: '/create-family-member', builder: (_, __) => const CreateFamilyMemberScreen()),
-      GoRoute(path: '/notifications', builder: (_, __) => const NotificationsPage())
+      GoRoute(path: '/notifications', builder: (_, __) => const NotificationsPage()),
       GoRoute(path: '/appointments/create', builder: (_, __) => const CreateAppointmentScreen()),
       GoRoute(path: '/doctor-list', builder: (_, __) => const DoctorListScreen()),
       GoRoute(path: '/doctor-detail', builder: (_, state) => DoctorDetailScreen(doctor: state.extra as Doctor)),
