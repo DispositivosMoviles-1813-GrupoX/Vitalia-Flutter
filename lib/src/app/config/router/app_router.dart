@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:vitalia_flutter/src/features/appointment/presentation/create_appointment_screen.dart';
 import 'package:vitalia_flutter/src/features/resident/presentation/resident_medicalhistory_screen.dart';
 import 'package:vitalia_flutter/src/features/resident/presentation/resident_medication_screen.dart';
 import 'package:vitalia_flutter/src/features/resident/presentation/resident_mentalhealth_screen.dart';
@@ -68,6 +69,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/resident/profile', builder: (_, __) => const ResidentProfileScreen()),
       GoRoute(path: '/resident/reports', builder: (_, __) => const ResidentReportsScreen()),
       GoRoute(path: '/create-family-member', builder: (_, __) => const CreateFamilyMemberScreen()),
+      GoRoute(path: '/appointments/create', builder: (_, __) => const CreateAppointmentScreen()),
     ],
   );
 });

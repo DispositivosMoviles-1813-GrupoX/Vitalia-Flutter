@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../resident/application/resident_provider.dart';
 import '../application/auth_notifier.dart';
+import '../application/home_info_provider.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final user = ref.watch(authNotifierProvider).value;
+    final residentAsync = ref.watch(residentProvider);
+    final homeInfoAsync = ref.watch(homeInfoFutureProvider);
 
     return Scaffold(
       backgroundColor: const Color(0xffF4F6F9),
@@ -38,7 +41,18 @@ class HomeScreen extends ConsumerWidget {
           children: [
 
             /// -- HEADER --
-            _residentHeader(),
+            residentAsync.when(
+              data: (resident) => _residentHeader(
+                name: resident.fullName,
+                details: "Residente", // Could add room info if available in model
+                photoUrl: resident.photoUrl,
+              ),
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (e, _) => _residentHeader(
+                name: "Error al cargar",
+                details: "Intente nuevamente",
+              ),
+            ),
 
             const SizedBox(height: 24),
 
@@ -57,23 +71,70 @@ class HomeScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 12),
 
-            _statusCard(
-              title: "Doctor asignado",
-              subtitle: "Dr. Luis Aranda — Disponible",
-              icon: Icons.medical_services_outlined,
-              color: Colors.teal,
-            ),
-            _statusCard(
-              title: "Próxima cita",
-              subtitle: "15 Nov, 10:00 AM — Control general",
-              icon: Icons.event,
-              color: Colors.indigo,
-            ),
-            _statusCard(
-              title: "Última actualización",
-              subtitle: "Reporte diario enviado hoy a las 9:20 AM",
-              icon: Icons.update,
-              color: Colors.orange,
+            homeInfoAsync.when(
+              data: (homeInfo) {
+                if (!homeInfo.hasData) {
+                  return Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black12.withAlpha(55),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        )
+                      ],
+                    ),
+                    child: Column(
+                      children: [
+                        Icon(Icons.info_outline, size: 48, color: Colors.grey[400]),
+                        const SizedBox(height: 12),
+                        const Text(
+                          "No hay información disponible",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        const Text(
+                          "Aún no tiene doctor asignado ni citas próximas.",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(color: Colors.black54),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+                return Column(
+                  children: [
+                    _statusCard(
+                      title: "Doctor asignado",
+                      subtitle: "${homeInfo.doctorName} — ${homeInfo.doctorStatus}",
+                      icon: Icons.medical_services_outlined,
+                      color: Colors.teal,
+                    ),
+                    _statusCard(
+                      title: "Próxima cita",
+                      subtitle: "${homeInfo.nextAppointmentDate} — ${homeInfo.nextAppointmentType}",
+                      icon: Icons.event,
+                      color: Colors.indigo,
+                    ),
+                    _statusCard(
+                      title: "Última actualización",
+                      subtitle: homeInfo.lastUpdate,
+                      icon: Icons.update,
+                      color: Colors.orange,
+                    ),
+                  ],
+                );
+              },
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (e, _) => Center(child: Text("Error al cargar información: $e")),
             ),
 
             const SizedBox(height: 24),
@@ -92,7 +153,11 @@ class HomeScreen extends ConsumerWidget {
   }
 
   /// ========== HEADER==========
-  Widget _residentHeader() {
+  Widget _residentHeader({
+    required String name,
+    required String details,
+    String? photoUrl,
+  }) {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
@@ -101,28 +166,33 @@ class HomeScreen extends ConsumerWidget {
       ),
       child: Row(
         children: [
-          const CircleAvatar(
+          CircleAvatar(
             radius: 32,
-            backgroundImage: AssetImage('assets/images/perfil.jpg'),
+            backgroundImage: photoUrl != null 
+                ? NetworkImage(photoUrl) 
+                : const AssetImage('assets/images/perfil.jpg') as ImageProvider,
+            onBackgroundImageError: (_, __) {
+              // Fallback handled by default or could be improved
+            },
           ),
           const SizedBox(width: 14),
 
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
+              children: [
                 Text(
-                  "Jorge Gonzales",
-                  style: TextStyle(
+                  name,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
-                  "Habitación 305 — Residente",
-                  style: TextStyle(
+                  details,
+                  style: const TextStyle(
                     color: Colors.white70,
                     fontSize: 14,
                   ),
@@ -143,13 +213,15 @@ class HomeScreen extends ConsumerWidget {
           context.push('/resident');
         }),
         _actionItem(Icons.notifications, "Notificaciones", onTap: () {
-          context.push('/notifications');
+          // context.push('/notifications'); // TODO: Implement route
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Próximamente")));
         }),
         _actionItem(Icons.event, "Citas", onTap: () {
-          context.push('/appointments');
+          context.push('/appointments/create');
         }),
         _actionItem(Icons.local_hospital, "Doctor", onTap: () {
-          context.push('/resident/doctor');
+          // context.push('/resident/doctor'); // TODO: Implement route
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Próximamente")));
         }),
       ],
     );
@@ -234,7 +306,10 @@ class HomeScreen extends ConsumerWidget {
   /// ========== NOTIFICATIONS CARD ==========
   Widget _notificationsCard(BuildContext context) {
     return GestureDetector(
-      onTap: () => context.push('/notifications'),
+      onTap: () {
+         // context.push('/notifications'); // TODO: Implement route
+         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Próximamente")));
+      },
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
